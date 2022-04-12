@@ -2,6 +2,14 @@ import codecs
 import Backend.recipeGrabber as Grab
 from kivy.app import App
 from kivy.uix.label import Label
+from kivy.config import Config
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.floatlayout import FloatLayout
+
+
+class myLayout(FloatLayout):
+    pass
 
 
 class Main(App):
@@ -20,14 +28,11 @@ class Main(App):
     grb = None
 
     def build(self):
-        label = Label(text="Testing",
-                      size_hint=(.5, .5),
-                      pos_hint={'center_x': .5, 'center_y': .5})
-        self.grb = Grab.RecipeGrabber()
-
-        return label
+        return myLayout()
 
 
 if __name__ == '__main__':
+    Config.set('graphics', 'width', '350')
+    Config.set('graphics', 'height', '740')
     app = Main()
     app.run()

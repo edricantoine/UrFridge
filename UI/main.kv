@@ -1,0 +1,22 @@
+<MyLayout>:
+    id: mainScreen
+    pos_hint: {'center_y': 0.5, 'center_x': 0.5}
+    canvas:
+        Color:
+            #:import hex kivy.utils.get_color_from_hex
+            rgba: hex('#EDF2E9')
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    Label:
+        #:import hex kivy.utils.get_color_from_hex
+        color: hex('#313D2D')
+        id: test
+        text: 'Suggest-A-Recipe!'
+        font_size: '30sp'
+        size: self.texture_size
+        size_hint:[None, None]
+        font_name: 'Deysia Brush'
+        pos_hint: {'center_x':0.5, 'center_y':0.9}
+
+

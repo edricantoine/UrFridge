@@ -1,4 +1,5 @@
 import requests
+import Backend.config as config
 from py_edamam import PyEdamam
 
 
@@ -11,12 +12,12 @@ class RecipeGrabber:
     cuisineType = "All"
     dishType = "All"
     # object that interacts with the Edamam API
-    e = PyEdamam(nutrition_appid='575aad09',
-                 nutrition_appkey='a06d5fcfcb82ec71c9b8566bb66ac7f3',
-                 recipes_appid='575aad09',
-                 recipes_appkey='a06d5fcfcb82ec71c9b8566bb66ac7f3',
-                 food_appid='575aad09',
-                 food_appkey='a06d5fcfcb82ec71c9b8566bb66ac7f3')
+    e = PyEdamam(nutrition_appid=config.api_id,
+                 nutrition_appkey=config.api_key,
+                 recipes_appid=config.api_id,
+                 recipes_appkey=config.api_key,
+                 food_appid=config.api_id,
+                 food_appkey=config.api_key)
 
     def __init__(self, ing=None, cal=1000, mt="All", ct="All", dt="All"):
         if ing is None:
