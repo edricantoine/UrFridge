@@ -1,5 +1,5 @@
 import codecs
-import Backend.recipeGrabber as Grab
+import Backend.SpRecipeGrabber as Grab2
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.config import Config
@@ -28,6 +28,8 @@ class Main(App):
     grb = None
 
     def build(self):
+        grb = Grab2.SpRecipeGrabber()
+        grb.grabRecipe()
         return myLayout()
 
 
