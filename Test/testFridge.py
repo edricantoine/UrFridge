@@ -59,6 +59,23 @@ class MyTestCase(unittest.TestCase):
 
         self.assertEqual(len(self.f.getRecipes()), 3)
 
+    def testGrabRecipeCalorieLimit(self):
+        self.f.addIngredient("Tomatoes", 12)
+        self.f.addIngredient("Lettuce", 1)
+        self.f.addIngredient("Apples", 3)
+        self.f.addIngredient("Beef", 1)
+
+        self.f.selectIngredient("Tomatoes", True)
+        self.f.selectIngredient("Lettuce", True)
+        self.f.selectIngredient("Apples", True)
+        self.f.selectIngredient("Beef", True)
+
+        self.f.getRecipeFromSelectedIngredients(3, 1000)
+        for r in self.f.getRecipes():
+            print(str(r[0]) + " " + r[1] + " " + str(r[2]) + " " + r[3])
+
+        self.assertEqual(len(self.f.getRecipes()), 2)
+
 
 if __name__ == '__main__':
     unittest.main()

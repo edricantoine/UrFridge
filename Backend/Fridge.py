@@ -54,10 +54,7 @@ class Fridge:
 
         return False
 
-    # getter + setter for name
-    def setName(self, name: str):
-        self.name = name
-
+    # getter for name (name is unchangeable)
     def getName(self):
         return self.name
 
