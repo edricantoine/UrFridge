@@ -12,11 +12,44 @@
         #:import hex kivy.utils.get_color_from_hex
         color: hex('#313D2D')
         id: test
-        text: 'Suggest-A-Recipe!'
-        font_size: '30sp'
+        text: 'My Fridge Manager'
+        font_size: '50sp'
         size: self.texture_size
         size_hint:[None, None]
         font_name: 'Deysia Brush'
         pos_hint: {'center_x':0.5, 'center_y':0.9}
+
+    RoundedButton:
+        background_normal: ''
+        #:import hex kivy.utils.get_color_from_hex
+        text: 'My Fridges'
+        size_hint: {0.25,0.1}
+        pos_hint: {'center_x':0.25, 'center_y':0.5}
+        font_name: 'AntipastoPro_trial'
+        on_press: print("bababooey (test 1)")
+
+    RoundedButton:
+        background_normal: ''
+        #:import hex kivy.utils.get_color_from_hex
+        text: 'New Fridge'
+        size_hint: {0.25,0.1}
+        pos_hint: {'center_x':0.75, 'center_y':0.5}
+        font_name: 'AntipastoPro_trial'
+        on_press: print("test 2")
+
+
+<RoundedButton@Button>
+    background_color: (0, 0, 0, 0)
+    background_normal: ''
+    canvas.before:
+        Color:
+            #:import hex kivy.utils.get_color_from_hex
+            rgba: hex('#0B4118')
+
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [50]
+
 
 

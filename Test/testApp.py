@@ -7,6 +7,7 @@ class MyTestCase(unittest.TestCase):
     testapp = App.Application()
 
     def testAddFridge(self):
+        self.testapp = App.Application()
         self.assertEqual(len(self.testapp.getFridges()), 0)
         self.testapp.addFridge("Edric's Fridge")
         self.assertEqual(len(self.testapp.getFridges()), 1)
@@ -16,6 +17,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(self.testapp.getFridges()[1].getName(), "Aiden's Fridge")
 
     def testAddFridgeAlreadyExist(self):
+        self.testapp = App.Application()
         self.assertEqual(len(self.testapp.getFridges()), 0)
         self.testapp.addFridge("Edric's Fridge")
         self.assertEqual(len(self.testapp.getFridges()), 1)
@@ -23,6 +25,7 @@ class MyTestCase(unittest.TestCase):
         self.assertFalse(self.testapp.addFridge("Edric's Fridge"))
 
     def testRemoveFridge(self):
+        self.testapp = App.Application()
         self.assertEqual(len(self.testapp.getFridges()), 0)
         self.testapp.addFridge("Edric's Fridge")
         self.assertEqual(len(self.testapp.getFridges()), 1)
@@ -35,6 +38,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(self.testapp.getFridges()[0].getName(), "Aiden's Fridge")
 
     def testRemoveFridgeNotExist(self):
+        self.testapp = App.Application()
         self.assertEqual(len(self.testapp.getFridges()), 0)
         self.testapp.addFridge("Edric's Fridge")
         self.assertEqual(len(self.testapp.getFridges()), 1)
@@ -45,5 +49,4 @@ class MyTestCase(unittest.TestCase):
         self.assertFalse(self.testapp.removeFridge("Justin's Fridge"))
 
 
-if __name__ == '__main__':
-    unittest.main()
+

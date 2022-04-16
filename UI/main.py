@@ -8,18 +8,6 @@ class myLayout(FloatLayout):
 
 
 class Main(App):
-    # all possible meal types
-    mealTypes = ["All", "Breakfast", "Lunch", "Dinner", "Snack", "Teatime"]
-    # all possible dish types
-    dishTypes = ["All", "Alcohol-cocktail", "Biscuits and cookies", "Bread", "Cereals", "Condiments and sauces",
-                 "Drinks",
-                 "Desserts", "Egg", "Main course", "Omelet", "Pancake", "Preps", "Preserve", "Salad", "Sandwiches",
-                 "Soup", "Starter"]
-    # all possible regional cuisine types
-    cuisineTypes = ["All", "American", "Asian", "British", "Caribbean", "Central Europe", "Chinese", "Eastern Europe",
-                    "French", "Indian", "Italian", "Japanese", "Kosher", "Mediterranean", "Mexican", "Middle Eastern",
-                    "Nordic", "South American", "South East Asian"]
-
     grb = None
 
     def build(self):
