@@ -1,10 +1,11 @@
-# MyFridge
+# UrFridge
 
-An application that allows users to store a multitude of fridges,
-each with their own list of ingredients. Items can be added to and 
-removed from a fridge, and the Spoonacular API is used
+An application that allows users to keep track of 
+what's in their fridge, freezer, or pantry! 
+Items can be added to and 
+removed from a location, and the Spoonacular API is used
 to suggest recipes based on select items the user has 
-in their fridge.
+in their food storage.
 
 Powered by the Spoonacular API.
 
