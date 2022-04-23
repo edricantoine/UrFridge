@@ -2,12 +2,14 @@
 class Ingredient:
     name = None
     quantity = None
+    calories = None
     selected = None
 
-    def __init__(self, name: str, quantity: int):
+    def __init__(self, name: str, quantity: int, cals: int):
         self.name = name
         self.quantity = quantity
         self.selected = False
+        self.calories = cals
 
     def getName(self):
         return self.name

@@ -6,29 +6,25 @@ from typing import List
 
 # A class that represents the data storage of the app, with a list of fridges
 class Application:
-    fridges: List[Frg.Fridge]
+    fridge: Frg.Fridge
+    pantry: Frg.Fridge
+    freezer: Frg.Fridge
+    misc: Frg.Fridge
 
     def __init__(self):
-        self.fridges = []
+        self.fridge = Frg.Fridge("Fridge")
+        self.pantry = Frg.Fridge("Pantry")
+        self.freezer = Frg.Fridge("Freezer")
+        self.misc = Frg.Fridge("Other")
 
-    # Adds a fridge with given name to the App. Fails and returns false if fridge w/ that name exists.
-    def addFridge(self, name):
-        for f in self.fridges:
-            if f.getName() == name:
-                return False
+    def getFridge(self):
+        return self.fridge
 
-        self.fridges.append(Frg.Fridge(name))
-        return True
+    def getPantry(self):
+        return self.pantry
 
-    # Removes a fridge with given name from the App. Fails and returns false if fridge w/ that name doesn't exist.
-    def removeFridge(self, name):
-        for f in self.fridges:
-            if f.getName() == name:
-                self.fridges.remove(f)
-                return True
+    def getFreezer(self):
+        return self.freezer
 
-        return False
-
-    # Getter for fridges list
-    def getFridges(self):
-        return self.fridges
+    def getMisc(self):
+        return self.misc
