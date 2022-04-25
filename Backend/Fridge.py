@@ -1,15 +1,15 @@
 import Backend.SpRecipeGrabber as Grab
 import Backend.Ingredient as Ing
+import Backend.Recipe as Rec
+
 from typing import List
 from typing import Tuple
 
 
 # A class representing a Fridge with a name, and in which ingredients can be stored
 class Fridge:
-    grabber = None  # the SpRecipeGrabber it will use to grab recipes
     name = None  # the Fridge's name
     ingredients: List[Ing.Ingredient] = None  # a list of Ingredients
-    recipes: List[Tuple[int, str, int, str]]
 
     def __init__(self, name: str):
         self.grabber = Grab.SpRecipeGrabber()
@@ -22,11 +22,11 @@ class Fridge:
         return self.ingredients
 
     # adds an ingredient with quantity to the fridge, not selected by default
-    def addIngredient(self, name: str, quant: int):
-        self.ingredients.append(Ing.Ingredient(name, quant))
+    def addIngredient(self, name: str, quant: float, unit: str):
+        self.ingredients.append(Ing.Ingredient(name, quant, unit))
 
     # increases the quantity of an already existing item in the fridge by quant
-    def increaseIngredient(self, name: str, quant: int):
+    def increaseIngredient(self, name: str, quant: float):
         for i in self.ingredients:
             if i.getName() == name:
                 i.setQuantRelative(quant)
@@ -58,19 +58,7 @@ class Fridge:
     def getName(self):
         return self.name
 
-    # getter for grabber
-    def getGrabber(self):
-        return self.grabber
 
-    # getter for recipes
-    def getRecipes(self):
-        return self.recipes
 
-    def getRecipeFromSelectedIngredients(self, num: int, calories: int or None):
-        for i in self.ingredients:
-            if i.getSelected():
-                self.grabber.addIngredient(i)
-
-        self.recipes = self.grabber.grabRecipe(num, calories)
 
 

@@ -1,33 +1,25 @@
-from kivy.app import App
+from abc import ABC
+from kivymd.uix.screen import MDScreen
+from kivymd.app import MDApp
 from kivy.config import Config
 from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
-from kivy.uix.button import Button
 import Backend.Application as Apple
-import Backend.Fridge as Frg
 
 
 class MainScreen(Screen):
     pass
 
 
-
 class WindowManager(ScreenManager):
     pass
 
 
-class RoundedButton(Button):
-    pass
-
-
-class SelectButton(Button):
-    pass
-
-
-class Main(App):
+class Main(MDApp):
     app = None
 
     def build(self):
         self.app = Apple.Application()
+        self.theme_cls.primary_palette = "Green"
         sm = ScreenManager()
         sm.add_widget(MainScreen(name="Main Screen"))
 

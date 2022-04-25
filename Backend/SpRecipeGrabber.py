@@ -2,6 +2,7 @@ import requests
 import Backend.config as config
 import spoonacular as sp
 import Backend.Ingredient as Ing
+import Backend.Recipe as Rec
 from typing import List
 from typing import Tuple
 
@@ -19,8 +20,7 @@ class SpRecipeGrabber:
 
     def grabRecipe(self, num: int, calories: int or None):
         self.setCalories(calories)
-        recipes: List[Tuple[int, str, int, str]] = []  # first element in tuple will be id, second will be title,
-        # third is calories, fourth is url
+        recipes: List[Rec.Recipe] = []
 
         ingString = ""
         for i in self.ingredients:
@@ -29,20 +29,15 @@ class SpRecipeGrabber:
         response = self.api.search_recipes_by_ingredients(ingredients=ingString, number=num, ranking=2)
         data = response.json()
         for r in data:
-            cData = self.getCalorieData(r['id'])
-            recipes.append((r['id'], r['title'], cData[0], cData[1]))
+            responser = self.api.get_recipe_information(r['id'], True)
+            bababooey = responser.json()
+            recipes.append(Rec.Recipe(r, bababooey))
 
         for r in recipes:
-            if self.calories is not None and r[2] > self.calories:
+            if self.calories is not None and r.getCalories() > self.calories:
                 recipes.remove(r)
 
         return recipes
-
-    def getCalorieData(self, rid: int):
-        response = self.api.get_recipe_information(rid, True)
-        data = response.json()
-
-        return [data['nutrition']['nutrients'][0]['amount'], data['sourceUrl']]
 
     def addIngredient(self, ingredient: Ing.Ingredient):
         self.ingredients.append(ingredient)
