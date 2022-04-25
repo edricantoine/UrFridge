@@ -2,6 +2,7 @@ from abc import ABC
 from kivymd.uix.screen import MDScreen
 from kivymd.app import MDApp
 from kivy.config import Config
+from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
 import Backend.Application as Apple
 
@@ -29,5 +30,6 @@ class Main(MDApp):
 if __name__ == '__main__':
     Config.set('graphics', 'width', '350')
     Config.set('graphics', 'height', '740')
+    Window.size = (350, 740)
     app = Main()
     app.run()
