@@ -1,7 +1,148 @@
+#:import get_color_from_hex kivy.utils.get_color_from_hex
 <MainScreen>:
+    id: mainScreen
+    MDBottomNavigation:
+        panel_color: get_color_from_hex("#d0f7d6")
+        selected_color_background: get_color_from_hex("#6b8a70")
+        text_color_active: get_color_from_hex("#6b8a70")
+        MDBottomNavigationItem:
+            id: frNav
+            name: 'fridge'
+            text: 'Fridge'
+            ScrollView:
+                id: frSc
+                size: self.parent.width, self.parent.height
+                do_scroll_x: False
+                do_scroll_y: True
+                bar_width: 20
+                BoxLayout:
+                    id: frScroll
+                    pos_hint: {'center_y': 0.5, 'center_x': 0.5}
+                    size_hint_y: None
+                    height: self.minimum_height
+                    canvas:
+                        Color:
+                            #:import hex kivy.utils.get_color_from_hex
+                            rgba: hex('#F0F0F0')
+                        Rectangle:
+                            size: self.size
+                            pos: self.pos
+
+                    orientation:'vertical'
+                    spacing: 20
+
+
+        MDBottomNavigationItem:
+            id: fzNav
+            name: 'freezer'
+            text: 'Freezer'
+            ScrollView:
+                id: fzSc
+                size: self.parent.width, self.parent.height
+                do_scroll_x: False
+                do_scroll_y: True
+                bar_width: 20
+                BoxLayout:
+                    id: fzScroll
+                    pos_hint: {'center_y': 0.5, 'center_x': 0.5}
+                    size_hint_y: None
+                    height: self.minimum_height
+                    canvas:
+                        Color:
+                            #:import hex kivy.utils.get_color_from_hex
+                            rgba: hex('#F0F0F0')
+                        Rectangle:
+                            size: self.size
+                            pos: self.pos
+
+                    orientation:'vertical'
+                    spacing: 20
+
+
+        MDBottomNavigationItem:
+            id: hmNav
+            name: 'home'
+            text: 'Home'
+
+
+
+        MDBottomNavigationItem:
+            id: pnNav
+            name: 'pantry'
+            text: 'Pantry'
+            ScrollView:
+                id: pnSc
+                size: self.parent.width, self.parent.height
+                do_scroll_x: False
+                do_scroll_y: True
+                bar_width: 20
+                BoxLayout:
+                    id: pnScroll
+                    pos_hint: {'center_y': 0.5, 'center_x': 0.5}
+                    size_hint_y: None
+                    height: self.minimum_height
+                    canvas:
+                        Color:
+                            #:import hex kivy.utils.get_color_from_hex
+                            rgba: hex('#F0F0F0')
+                        Rectangle:
+                            size: self.size
+                            pos: self.pos
+
+                    orientation:'vertical'
+                    spacing: 20
+
+
+        MDBottomNavigationItem:
+            id: msNav
+            name: 'misc'
+            text: 'Misc.'
+            ScrollView:
+                id: msSc
+                size: self.parent.width, self.parent.height
+                do_scroll_x: False
+                do_scroll_y: True
+                bar_width: 20
+                BoxLayout:
+                    id: msScroll
+                    pos_hint: {'center_y': 0.5, 'center_x': 0.5}
+                    size_hint_y: None
+                    height: self.minimum_height
+                    canvas:
+                        Color:
+                            #:import hex kivy.utils.get_color_from_hex
+                            rgba: hex('#F0F0F0')
+                        Rectangle:
+                            size: self.size
+                            pos: self.pos
+
+                    orientation:'vertical'
+                    spacing: 20
+
+<FridgeDisplay@MDCard>:
+    size_hint: None, None
+    size: "300dp", "50dp"
+    pos_hint: {"center_x": .5, "center_y": .5}
+
     MDLabel:
-        text: "cum"
+        id: fDisplayLabel
+        halign: "center"
+        text: "Ingredient"
         font_name: "DMSans-Regular"
+
+    MDLabel:
+        id: fAmtLabel
+        halign: "center"
+        text: "??? unit(s)"
+        font_name: "DMSans-Regular"
+
+    MDCheckbox:
+        id: fDisplaySelector
+        halign: "center"
+
+
+
+
 
 
 
