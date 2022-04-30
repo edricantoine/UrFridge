@@ -59,6 +59,7 @@
 
 
 
+
         MDBottomNavigationItem:
             id: pnNav
             name: 'pantry'
@@ -121,9 +122,10 @@
         theme_text_color: "Custom"
         text_color: get_color_from_hex("#08421e")
 
-    MDCheckbox:
-        id: fDisplaySelector
-        halign: "center"
+    MDIconButton:
+        icon: 'pencil'
+        icon_size: '32sp'
+        halign: 'center'
 
     MDIconButton:
         icon: 'trash-can'
@@ -132,12 +134,26 @@
 
         on_press: self.parent.deletus_ingredient(), self.parent.ms.clearify()
 
+    MDCheckbox:
+        id: fDisplaySelector
+        halign: "center"
+
 <NothingThereLabel@MDLabel>:
 
     text: "Add an ingredient using the + button!"
     font_name: 'Deysia Brush'
     halign: 'center'
     pos_hint: {'center_x': 0.5}
+    theme_text_color: "Custom"
+    text_color: get_color_from_hex("#aebfb3")
+
+<InfoLabel@MDLabel>:
+
+    text: "Use the checkbox to select ingredients for recipe search."
+    font_name: 'Deysia Brush'
+    font_size: '20sp'
+    halign: 'center'
+    pos_hint: {'center_x': 0.5, 'center_y': 0}
     theme_text_color: "Custom"
     text_color: get_color_from_hex("#aebfb3")
 

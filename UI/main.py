@@ -1,16 +1,30 @@
-
 from kivymd.app import MDApp
 from kivymd.uix.button import MDFloatingActionButton
 from kivymd.uix.label import MDLabel
+from kivymd.toast import toast
 from kivy.config import Config
 from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivymd.uix.card import MDCard
 from kivymd.uix.dialog import MDDialog
 from kivy.uix.boxlayout import BoxLayout
+from kivy.utils import platform
+from jnius import autoclass
 import Backend.Ingredient as Ing
 import Backend.Application as Apple
 import Backend.Fridge as Frg
+import http.client as httplib
+
+
+def check_connectivity():
+    conn = httplib.HTTPSConnection("8.8.8.8", timeout=5)
+    try:
+        conn.request("HEAD", "/")
+        return True
+    except Exception:
+        return False
+    finally:
+        conn.close()
 
 
 class MainScreen(Screen):
@@ -178,6 +192,20 @@ class AddIngredientDialog(MDDialog):
         self.ferg = schlapp
 
 
+class EditIngredientDialog(MDDialog):
+    pass
+
+
+class EditIngredientContent(BoxLayout):
+    ferg: Frg.Fridge
+    ms: MainScreen
+
+    def __init__(self, ferg: Frg.Fridge, mss: MainScreen, **kwargs):
+        super().__init__(**kwargs)
+        self.ferg = ferg
+        self.ms = mss
+
+
 class AddIngredientContent(BoxLayout):
     aap = Frg.Fridge
     ms: MainScreen
@@ -191,15 +219,22 @@ class AddIngredientContent(BoxLayout):
         name = self.ids.ingName.text
         amount = self.ids.ingAmt.text
         unit = self.ids.ingUnit.text
-        if name != "" and amount != "" and unit != "":
+        if name != "" and amount != "" and unit != "" and len(name) <= 10 and len(amount) <= 10 and len(unit) <= 10:
             self.aap.addIngredient(name, float(amount), unit)
             self.ms.clearify()
             self.ids.ingName.text = ""
             self.ids.ingAmt.text = ""
             self.ids.ingUnit.text = ""
+        else:
+            toast('One or more fields are invalid.')
 
 
 class NothingThereLabel(MDLabel):
+    def __draw_shadow__(self, origin, end, context=None):
+        pass
+
+
+class InfoLabel(MDLabel):
     def __draw_shadow__(self, origin, end, context=None):
         pass
 
@@ -211,6 +246,34 @@ class Main(MDApp):
 
     def dialog_close(self):
         self.dialog.dismiss(force=True)
+
+    def showEditDialogFr(self):
+        self.dialog = EditIngredientDialog(type="custom",
+                                           title="New Ingredient",
+                                           content_cls=EditIngredientContent(self.app.getFridge(),
+                                                                             self.sm.get_screen("Main Screen")))
+        self.dialog.open()
+
+    def showEditDialogFz(self):
+        self.dialog = EditIngredientDialog(type="custom",
+                                           title="New Ingredient",
+                                           content_cls=EditIngredientContent(self.app.getFridge(),
+                                                                             self.sm.get_screen("Main Screen")))
+        self.dialog.open()
+
+    def showEditDialogPn(self):
+        self.dialog = EditIngredientDialog(type="custom",
+                                           title="New Ingredient",
+                                           content_cls=EditIngredientContent(self.app.getFridge(),
+                                                                             self.sm.get_screen("Main Screen")))
+        self.dialog.open()
+
+    def showEditDialogMs(self):
+        self.dialog = EditIngredientDialog(type="custom",
+                                           title="New Ingredient",
+                                           content_cls=EditIngredientContent(self.app.getFridge(),
+                                                                             self.sm.get_screen("Main Screen")))
+        self.dialog.open()
 
     def showAddDialogFrg(self):
         self.dialog = AddIngredientDialog(self.app.getFridge(), type="custom",
@@ -245,7 +308,10 @@ class Main(MDApp):
         self.theme_cls.primary_palette = "Green"
         self.sm = ScreenManager()
         self.sm.add_widget(MainScreen(self.app, name="Main Screen"))
-
+        if check_connectivity():
+            print("Connected!")
+        else:
+            print("Not connected.")
         return self.sm
 
 
