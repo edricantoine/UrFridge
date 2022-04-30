@@ -1,11 +1,10 @@
-from abc import ABC
-from kivymd.uix.screen import MDScreen
+
 from kivymd.app import MDApp
 from kivymd.uix.button import MDFloatingActionButton
-from kivymd.uix.button import MDFlatButton
+from kivymd.uix.label import MDLabel
 from kivy.config import Config
 from kivy.core.window import Window
-from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
+from kivy.uix.screenmanager import ScreenManager, Screen
 from kivymd.uix.card import MDCard
 from kivymd.uix.dialog import MDDialog
 from kivy.uix.boxlayout import BoxLayout
@@ -20,15 +19,8 @@ class MainScreen(Screen):
     def __init__(self, aap: Apple.Application, **kw):
         super().__init__(**kw)
         self.app = aap
-        self.app.fridge.addIngredient("Paprika", 1.0, "tsp")
-        self.app.fridge.addIngredient("Watermelon", 1.0, "melon(s)")
-        self.app.freezer.addIngredient("Blueberry", 10.0, "berry(s)")
-        self.app.freezer.addIngredient("Cookie", 10.0, "package(s)")
-        self.app.pantry.addIngredient("Beef", 1.0, "steak(s)")
-        self.app.pantry.addIngredient("Pork", 1.0, "chop(s)")
-        self.app.misc.addIngredient("Ciabatta", 1.0, "loaf")
-        self.app.misc.addIngredient("B R E A D", 1.0, "loaf")
         self.clearify()
+        self.ids.botNav.switch_tab("home")
 
     def clearify(self):
         self.ids.frScroll.clear_widgets()
@@ -43,26 +35,30 @@ class MainScreen(Screen):
     def refreshFridge(self):
         self.ids.frScroll.clear_widgets()
         for i in self.app.fridge.getIngredient():
-            self.ids.frScroll.add_widget(FridgeDisplay(i))
-        self.ids.frScroll.add_widget(AddIngredientButton(self.app.fridge, self, "fridge"))
+            self.ids.frScroll.add_widget(FridgeDisplay(i, self.app.getFridge(), self))
+        self.ids.frScroll.add_widget(AddIngredientButtonFr(self.app.fridge, self, "fridge"))
+        self.ids.frScroll.add_widget(NothingThereLabel())
 
     def refreshFreezer(self):
         self.ids.fzScroll.clear_widgets()
         for i in self.app.freezer.getIngredient():
-            self.ids.fzScroll.add_widget(FridgeDisplay(i))
-        self.ids.fzScroll.add_widget(AddIngredientButton(self.app.freezer, self, "freezer"))
+            self.ids.fzScroll.add_widget(FridgeDisplay(i, self.app.getFreezer(), self))
+        self.ids.fzScroll.add_widget(AddIngredientButtonFz(self.app.freezer, self, "freezer"))
+        self.ids.fzScroll.add_widget(NothingThereLabel())
 
     def refreshPantry(self):
         self.ids.pnScroll.clear_widgets()
         for i in self.app.pantry.getIngredient():
-            self.ids.pnScroll.add_widget(FridgeDisplay(i))
-        self.ids.pnScroll.add_widget(AddIngredientButton(self.app.pantry, self, "pantry"))
+            self.ids.pnScroll.add_widget(FridgeDisplay(i, self.app.getPantry(), self))
+        self.ids.pnScroll.add_widget(AddIngredientButtonPn(self.app.pantry, self, "pantry"))
+        self.ids.pnScroll.add_widget(NothingThereLabel())
 
     def refreshMisc(self):
         self.ids.msScroll.clear_widgets()
         for i in self.app.misc.getIngredient():
-            self.ids.msScroll.add_widget(FridgeDisplay(i))
-        self.ids.msScroll.add_widget(AddIngredientButton(self.app.misc, self, "misc"))
+            self.ids.msScroll.add_widget(FridgeDisplay(i, self.app.getMisc(), self))
+        self.ids.msScroll.add_widget(AddIngredientButtonMs(self.app.misc, self, "misc"))
+        self.ids.msScroll.add_widget(NothingThereLabel())
 
 
 class WindowManager(ScreenManager):
@@ -70,13 +66,89 @@ class WindowManager(ScreenManager):
 
 
 class FridgeDisplay(MDCard):
-    def __init__(self, ingredient: Ing.Ingredient, **kwargs):
+    ing: Ing.Ingredient
+    frg = Frg.Fridge
+    ms = MainScreen
+
+    def __init__(self, ingredient: Ing.Ingredient, fridge: Frg.Fridge, ms: MainScreen, **kwargs):
         super().__init__(**kwargs)
+        self.ing = ingredient
+        self.frg = fridge
+        self.ms = ms
         self.ids.fDisplayLabel.text = ingredient.getName()
         self.ids.fAmtLabel.text = str(ingredient.getQuant()) + " " + ingredient.getUnit()
 
+    def deletus_ingredient(self):
+        self.frg.removeIngredients(self.ing.getName(), self.ing.getQuant())
 
-class AddIngredientButton(MDFloatingActionButton):
+
+class AddIngredientButtonFr(MDFloatingActionButton):
+    fridge: Frg.Fridge
+    ms: MainScreen
+    type: str
+
+    def refresh(self):
+        if self.type == "fridge":
+            self.ms.refreshFridge()
+        elif self.type == 'freezer':
+            self.ms.refreshFreezer()
+        elif self.type == 'pantry':
+            self.ms.refreshPantry()
+        elif self.type == 'misc':
+            self.ms.refreshMisc()
+
+    def __init__(self, f: Frg.Fridge, ms: MainScreen, type: str, **kwargs):
+        super().__init__(**kwargs)
+        self.fridge = f
+        self.ms = ms
+        self.type = type
+
+
+class AddIngredientButtonFz(MDFloatingActionButton):
+    fridge: Frg.Fridge
+    ms: MainScreen
+    type: str
+
+    def refresh(self):
+        if self.type == "fridge":
+            self.ms.refreshFridge()
+        elif self.type == 'freezer':
+            self.ms.refreshFreezer()
+        elif self.type == 'pantry':
+            self.ms.refreshPantry()
+        elif self.type == 'misc':
+            self.ms.refreshMisc()
+
+    def __init__(self, f: Frg.Fridge, ms: MainScreen, type: str, **kwargs):
+        super().__init__(**kwargs)
+        self.fridge = f
+        self.ms = ms
+        self.type = type
+
+
+class AddIngredientButtonPn(MDFloatingActionButton):
+    fridge: Frg.Fridge
+    ms: MainScreen
+    type: str
+
+    def refresh(self):
+        if self.type == "fridge":
+            self.ms.refreshFridge()
+        elif self.type == 'freezer':
+            self.ms.refreshFreezer()
+        elif self.type == 'pantry':
+            self.ms.refreshPantry()
+        elif self.type == 'misc':
+            self.ms.refreshMisc()
+
+    def __init__(self, f: Frg.Fridge, ms: MainScreen, type: str, **kwargs):
+        super().__init__(**kwargs)
+        self.fridge = f
+        self.ms = ms
+        self.type = type
+
+
+class AddIngredientButtonMs(MDFloatingActionButton):
     fridge: Frg.Fridge
     ms: MainScreen
     type: str
@@ -99,38 +171,82 @@ class AddIngredientButton(MDFloatingActionButton):
 
 
 class AddIngredientDialog(MDDialog):
-    aap = None
+    ferg = None
 
-    def __init__(self, schlapp: Apple.Application, **kwargs):
+    def __init__(self, schlapp: Frg.Fridge, **kwargs):
         super().__init__(**kwargs)
-        self.aap = schlapp
+        self.ferg = schlapp
 
 
 class AddIngredientContent(BoxLayout):
-    aap = None
+    aap = Frg.Fridge
+    ms: MainScreen
 
-    def __init__(self, schlapp: Apple.Application, **kwargs):
+    def __init__(self, ferg: Frg.Fridge, mss: MainScreen, **kwargs):
         super().__init__(**kwargs)
-        self.aap = schlapp
+        self.aap = ferg
+        self.ms = mss
+
+    def readInput(self):
+        name = self.ids.ingName.text
+        amount = self.ids.ingAmt.text
+        unit = self.ids.ingUnit.text
+        if name != "" and amount != "" and unit != "":
+            self.aap.addIngredient(name, float(amount), unit)
+            self.ms.clearify()
+            self.ids.ingName.text = ""
+            self.ids.ingAmt.text = ""
+            self.ids.ingUnit.text = ""
+
+
+class NothingThereLabel(MDLabel):
+    def __draw_shadow__(self, origin, end, context=None):
+        pass
 
 
 class Main(MDApp):
     app = None
     dialog = None
+    sm = None
 
-    def showAddDialog(self):
-        if not self.dialog:
-            self.dialog = AddIngredientDialog(self.app, type="custom",
-                                              title="New Ingredient", content_cls=AddIngredientContent(self.app))
+    def dialog_close(self):
+        self.dialog.dismiss(force=True)
+
+    def showAddDialogFrg(self):
+        self.dialog = AddIngredientDialog(self.app.getFridge(), type="custom",
+                                          title="New Ingredient",
+                                          content_cls=AddIngredientContent(self.app.getFridge(),
+                                                                           self.sm.get_screen("Main Screen")))
+        self.dialog.open()
+
+    def showAddDialogFrz(self):
+        self.dialog = AddIngredientDialog(self.app.getFreezer(), type="custom",
+                                          title="New Ingredient",
+                                          content_cls=AddIngredientContent(self.app.getFreezer(),
+                                                                           self.sm.get_screen("Main Screen")))
+        self.dialog.open()
+
+    def showAddDialogPn(self):
+        self.dialog = AddIngredientDialog(self.app.getPantry(), type="custom",
+                                          title="New Ingredient",
+                                          content_cls=AddIngredientContent(self.app.getPantry(),
+                                                                           self.sm.get_screen("Main Screen")))
+        self.dialog.open()
+
+    def showAddDialogMs(self):
+        self.dialog = AddIngredientDialog(self.app.getMisc(), type="custom",
+                                          title="New Ingredient",
+                                          content_cls=AddIngredientContent(self.app.getMisc(),
+                                                                           self.sm.get_screen("Main Screen")))
         self.dialog.open()
 
     def build(self):
         self.app = Apple.Application()
         self.theme_cls.primary_palette = "Green"
-        sm = ScreenManager()
-        sm.add_widget(MainScreen(self.app, name="Main Screen"))
+        self.sm = ScreenManager()
+        self.sm.add_widget(MainScreen(self.app, name="Main Screen"))
 
-        return sm
+        return self.sm
 
 
 if __name__ == '__main__':

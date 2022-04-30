@@ -1,10 +1,10 @@
 
 class Ingredient:
-    name = None
-    quantity = None
-    unit = None
-    calories = None
-    selected = None
+    name: str
+    quantity: float
+    unit: str
+    calories: int
+    selected: bool
 
     def __init__(self, name: str, quantity: float, unit: str):
         self.name = name
