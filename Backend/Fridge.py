@@ -2,8 +2,10 @@ import Backend.SpRecipeGrabber as Grab
 import Backend.Ingredient as Ing
 import Backend.Recipe as Rec
 
+
 from typing import List
 from typing import Tuple
+from decimal import *
 
 
 # A class representing a Fridge with a name, and in which ingredients can be stored
@@ -22,11 +24,16 @@ class Fridge:
         return self.ingredients
 
     # adds an ingredient with quantity to the fridge, not selected by default
-    def addIngredient(self, name: str, quant: float, unit: str):
+    def addIngredient(self, name: str, quant: Decimal, unit: str):
+        for i in self.ingredients:
+            if i.getName() == name:
+                return False
+
         self.ingredients.append(Ing.Ingredient(name, quant, unit))
+        return True
 
     # increases the quantity of an already existing item in the fridge by quant
-    def increaseIngredient(self, name: str, quant: float):
+    def increaseIngredient(self, name: str, quant: Decimal):
         for i in self.ingredients:
             if i.getName() == name:
                 i.setQuantRelative(quant)
@@ -35,7 +42,7 @@ class Fridge:
         return False
 
     # removes quant of an ingredient with given name from the fridge, deletes ing. from fridge if new quant is <= 0
-    def removeIngredients(self, name: str, quant: int):
+    def removeIngredients(self, name: str, quant: Decimal):
         for i in self.ingredients:
             if i.getName() == name:
                 i.setQuantRelative(quant * -1)

@@ -1,3 +1,4 @@
+from kivy.clock import Clock
 from kivymd.app import MDApp
 from kivymd.uix.button import MDFloatingActionButton
 from kivymd.uix.label import MDLabel
@@ -8,8 +9,9 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivymd.uix.card import MDCard
 from kivymd.uix.dialog import MDDialog
 from kivy.uix.boxlayout import BoxLayout
-from kivy.utils import platform
-from jnius import autoclass
+from kivymd.uix.menu import MDDropdownMenu
+from decimal import *
+
 import Backend.Ingredient as Ing
 import Backend.Application as Apple
 import Backend.Fridge as Frg
@@ -83,6 +85,16 @@ class FridgeDisplay(MDCard):
     ing: Ing.Ingredient
     frg = Frg.Fridge
     ms = MainScreen
+
+    def callEdit(self):
+        if self.frg.getName() == "Fridge":
+            app.showEditDialogFr(self.ing)
+        elif self.frg.getName() == "Freezer":
+            app.showEditDialogFz(self.ing)
+        elif self.frg.getName() == "Pantry":
+            app.showEditDialogPn(self.ing)
+        else:
+            app.showEditDialogMs(self.ing)
 
     def __init__(self, ingredient: Ing.Ingredient, fridge: Frg.Fridge, ms: MainScreen, **kwargs):
         super().__init__(**kwargs)
@@ -199,11 +211,29 @@ class EditIngredientDialog(MDDialog):
 class EditIngredientContent(BoxLayout):
     ferg: Frg.Fridge
     ms: MainScreen
+    ing: Ing.Ingredient
 
-    def __init__(self, ferg: Frg.Fridge, mss: MainScreen, **kwargs):
+    def readInput(self):
+        op = self.ids.ddItem.current_item
+        amount = self.ids.newAmount.text
+        if amount == "":
+            toast("Amount field was invalid.")
+
+        if op == "Add":
+            self.ferg.increaseIngredient(self.ing.getName(), Decimal(amount))
+        elif op == "Remove":
+            self.ferg.removeIngredients(self.ing.getName(), Decimal(amount))
+        else:
+            toast("Invalid command issued.")
+
+        self.ms.clearify()
+        self.ids.newAmount.text = ""
+
+    def __init__(self, ferg: Frg.Fridge, mss: MainScreen, ing: Ing.Ingredient, **kwargs):
         super().__init__(**kwargs)
         self.ferg = ferg
         self.ms = mss
+        self.ing = ing
 
 
 class AddIngredientContent(BoxLayout):
@@ -220,11 +250,14 @@ class AddIngredientContent(BoxLayout):
         amount = self.ids.ingAmt.text
         unit = self.ids.ingUnit.text
         if name != "" and amount != "" and unit != "" and len(name) <= 10 and len(amount) <= 10 and len(unit) <= 10:
-            self.aap.addIngredient(name, float(amount), unit)
-            self.ms.clearify()
-            self.ids.ingName.text = ""
-            self.ids.ingAmt.text = ""
-            self.ids.ingUnit.text = ""
+
+            if self.aap.addIngredient(name, Decimal(amount), unit):
+                self.ms.clearify()
+                self.ids.ingName.text = ""
+                self.ids.ingAmt.text = ""
+                self.ids.ingUnit.text = ""
+            else:
+                toast("An ingredient with that name already exists.")
         else:
             toast('One or more fields are invalid.')
 
@@ -243,36 +276,45 @@ class Main(MDApp):
     app = None
     dialog = None
     sm = None
+    menu = None
 
     def dialog_close(self):
         self.dialog.dismiss(force=True)
 
-    def showEditDialogFr(self):
+    def showEditDialogFr(self, ingredient: Ing.Ingredient):
         self.dialog = EditIngredientDialog(type="custom",
-                                           title="New Ingredient",
+                                           title="Edit Ingredient",
                                            content_cls=EditIngredientContent(self.app.getFridge(),
-                                                                             self.sm.get_screen("Main Screen")))
+                                                                             self.sm.get_screen("Main Screen"),
+                                                                             ingredient))
+        self.set_menu()
         self.dialog.open()
 
-    def showEditDialogFz(self):
+    def showEditDialogFz(self, ingredient: Ing.Ingredient):
         self.dialog = EditIngredientDialog(type="custom",
-                                           title="New Ingredient",
+                                           title="Edit Ingredient",
                                            content_cls=EditIngredientContent(self.app.getFridge(),
-                                                                             self.sm.get_screen("Main Screen")))
+                                                                             self.sm.get_screen("Main Screen"),
+                                                                             ingredient))
+        self.set_menu()
         self.dialog.open()
 
-    def showEditDialogPn(self):
+    def showEditDialogPn(self, ingredient: Ing.Ingredient):
         self.dialog = EditIngredientDialog(type="custom",
-                                           title="New Ingredient",
+                                           title="Edit Ingredient",
                                            content_cls=EditIngredientContent(self.app.getFridge(),
-                                                                             self.sm.get_screen("Main Screen")))
+                                                                             self.sm.get_screen("Main Screen"),
+                                                                             ingredient))
+        self.set_menu()
         self.dialog.open()
 
-    def showEditDialogMs(self):
+    def showEditDialogMs(self, ingredient: Ing.Ingredient):
         self.dialog = EditIngredientDialog(type="custom",
-                                           title="New Ingredient",
+                                           title="Edit Ingredient",
                                            content_cls=EditIngredientContent(self.app.getFridge(),
-                                                                             self.sm.get_screen("Main Screen")))
+                                                                             self.sm.get_screen("Main Screen"),
+                                                                             ingredient))
+        self.set_menu()
         self.dialog.open()
 
     def showAddDialogFrg(self):
@@ -303,11 +345,31 @@ class Main(MDApp):
                                                                            self.sm.get_screen("Main Screen")))
         self.dialog.open()
 
+    def set_menu(self):
+        mItems = [{
+            'viewclass': 'OneLineListItem',
+            'text': "Add",
+            'on_release': lambda x='Add': self.set_item(x)
+        },
+            {
+                'viewclass': 'OneLineListItem',
+                'text': "Remove",
+                'on_release': lambda x='Remove': self.set_item(x)
+            }]
+        self.menu = MDDropdownMenu(caller=self.dialog.content_cls.ids.ddItem,
+                                   items=mItems, width_mult=2)
+        self.menu.bind()
+
+    def set_item(self, arg):
+        self.dialog.content_cls.ids.ddItem.set_item(arg)
+        self.menu.dismiss()
+
     def build(self):
         self.app = Apple.Application()
         self.theme_cls.primary_palette = "Green"
         self.sm = ScreenManager()
         self.sm.add_widget(MainScreen(self.app, name="Main Screen"))
+
         if check_connectivity():
             print("Connected!")
         else:

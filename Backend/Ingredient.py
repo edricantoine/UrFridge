@@ -1,12 +1,14 @@
+from decimal import *
+
 
 class Ingredient:
     name: str
-    quantity: float
+    quantity: Decimal
     unit: str
     calories: int
     selected: bool
 
-    def __init__(self, name: str, quantity: float, unit: str):
+    def __init__(self, name: str, quantity: Decimal, unit: str):
         self.name = name
         self.quantity = quantity
         self.selected = False
@@ -28,7 +30,7 @@ class Ingredient:
         self.name = name
 
     # sets quantity of item relative to current quantity
-    def setQuantRelative(self, to_add: float):
+    def setQuantRelative(self, to_add: Decimal):
         self.quantity += to_add
 
     def setSelected(self, sel: bool):
