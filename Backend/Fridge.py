@@ -1,10 +1,8 @@
 import Backend.SpRecipeGrabber as Grab
 import Backend.Ingredient as Ing
-import Backend.Recipe as Rec
 
 
 from typing import List
-from typing import Tuple
 from decimal import *
 
 
@@ -64,8 +62,3 @@ class Fridge:
     # getter for name (name is unchangeable)
     def getName(self):
         return self.name
-
-
-
-
-

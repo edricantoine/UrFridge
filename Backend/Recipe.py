@@ -2,6 +2,9 @@ import Backend.Ingredient as Ing
 from typing import List
 
 
+# A class representing a Recipe with a name, id, url, calories, servings, time to prepare, missing ingredients,
+# number of missing ingredients, and whether it's vegan or vegetarian
+
 class Recipe:
     name: str
     id: int
@@ -28,6 +31,8 @@ class Recipe:
             self.mIng.append(Ing.Ingredient(a['name'], a['amount'], a['unit']))
 
         self.mIngCount = len(self.mIng)
+
+    # getters and setters
 
     def getName(self):
         return self.name
@@ -59,7 +64,7 @@ class Recipe:
     def getVegetarian(self):
         return self.vegetarian
 
-    # for testing purposes
+    # for testing purposes: prints attributes
     def printAll(self):
         print(self.getName() + " " + str(self.getId()) + " " + self.getUrl() + " " + str(self.getCalories()) + " " +
               str(self.getServings()) + " " + str(self.getMinutes()))

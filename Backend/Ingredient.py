@@ -1,11 +1,11 @@
 from decimal import *
 
 
+# A class representing an Ingredient in a recipe, with a name, quantity, unit, and whether it is selected.
 class Ingredient:
     name: str
     quantity: Decimal
     unit: str
-    calories: int
     selected: bool
 
     def __init__(self, name: str, quantity: Decimal, unit: str):
@@ -14,6 +14,7 @@ class Ingredient:
         self.selected = False
         self.unit = unit
 
+    # getters and setters
     def getName(self):
         return self.name
 
@@ -29,9 +30,9 @@ class Ingredient:
     def setName(self, name: str):
         self.name = name
 
+    def setSelected(self, sel: bool):
+        self.selected = sel
+
     # sets quantity of item relative to current quantity
     def setQuantRelative(self, to_add: Decimal):
         self.quantity += to_add
-
-    def setSelected(self, sel: bool):
-        self.selected = sel

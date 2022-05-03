@@ -1,9 +1,7 @@
-import Backend.Ingredient as Ing
 import Backend.Fridge as Frg
 import Backend.SpRecipeGrabber as Grb
 import Backend.Recipe as Rec
 from typing import List
-from typing import Tuple
 
 
 # A class that represents the data storage of the app, with a list of fridges
@@ -23,6 +21,8 @@ class Application:
         self.grabber = Grb.SpRecipeGrabber()
         self.recipes = []
 
+    # getters and setters
+
     def getFridge(self):
         return self.fridge
 
@@ -37,6 +37,8 @@ class Application:
 
     def getRecipes(self):
         return self.recipes
+
+    # grabs a list of num recipes using the Spoonacular API, from selected items in all four fridges
 
     def getRecipeFromSelectedIngredients(self, num: int, calories: int or None):
         for i in self.fridge.getIngredient():

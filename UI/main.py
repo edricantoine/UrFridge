@@ -18,6 +18,8 @@ import Backend.Fridge as Frg
 import http.client as httplib
 
 
+# Main class for screens + custom widgets
+
 def check_connectivity():
     conn = httplib.HTTPSConnection("8.8.8.8", timeout=5)
     try:
@@ -29,6 +31,8 @@ def check_connectivity():
         conn.close()
 
 
+# The main screen, with the bottom navigation panels + their contents
+
 class MainScreen(Screen):
     app = None
 
@@ -37,6 +41,8 @@ class MainScreen(Screen):
         self.app = aap
         self.clearify()
         self.ids.botNav.switch_tab("home")
+
+    # clears scrollpanes and refreshes ingredient UI for all four fridges
 
     def clearify(self):
         self.ids.frScroll.clear_widgets()
@@ -48,6 +54,8 @@ class MainScreen(Screen):
         self.refreshPantry()
         self.refreshMisc()
 
+    # clears scrollpanes and refreshes ingredient UI for fridge
+
     def refreshFridge(self):
         self.ids.frScroll.clear_widgets()
         for i in self.app.fridge.getIngredient():
@@ -55,6 +63,7 @@ class MainScreen(Screen):
         self.ids.frScroll.add_widget(AddIngredientButtonFr(self.app.fridge, self, "fridge"))
         self.ids.frScroll.add_widget(NothingThereLabel())
 
+    # clears scrollpanes and refreshes ingredient UI for freezer
     def refreshFreezer(self):
         self.ids.fzScroll.clear_widgets()
         for i in self.app.freezer.getIngredient():
@@ -62,6 +71,7 @@ class MainScreen(Screen):
         self.ids.fzScroll.add_widget(AddIngredientButtonFz(self.app.freezer, self, "freezer"))
         self.ids.fzScroll.add_widget(NothingThereLabel())
 
+    # clears scrollpanes and refreshes ingredient UI for pantry
     def refreshPantry(self):
         self.ids.pnScroll.clear_widgets()
         for i in self.app.pantry.getIngredient():
@@ -69,6 +79,7 @@ class MainScreen(Screen):
         self.ids.pnScroll.add_widget(AddIngredientButtonPn(self.app.pantry, self, "pantry"))
         self.ids.pnScroll.add_widget(NothingThereLabel())
 
+    # clears scrollpanes and refreshes ingredient UI for misc. section
     def refreshMisc(self):
         self.ids.msScroll.clear_widgets()
         for i in self.app.misc.getIngredient():
@@ -77,15 +88,27 @@ class MainScreen(Screen):
         self.ids.msScroll.add_widget(NothingThereLabel())
 
 
+# holds all screens in app
 class WindowManager(ScreenManager):
     pass
 
 
+# the MDCard that holds ingredient name + buttons for editing ingredient
 class FridgeDisplay(MDCard):
     ing: Ing.Ingredient
     frg = Frg.Fridge
     ms = MainScreen
 
+    # handles checkbox changing state
+    def on_checkbox(self, checkbox, value):
+        if value:
+            self.ing.setSelected(True)
+            print("Ingredient " + self.ing.getName() + " is now selected")
+        else:
+            self.ing.setSelected(False)
+            print("Ingredient " + self.ing.getName() + " is now deselected")
+
+    # calls the appropriate editing dialog
     def callEdit(self):
         if self.frg.getName() == "Fridge":
             app.showEditDialogFr(self.ing)
@@ -104,15 +127,19 @@ class FridgeDisplay(MDCard):
         self.ids.fDisplayLabel.text = ingredient.getName()
         self.ids.fAmtLabel.text = str(ingredient.getQuant()) + " " + ingredient.getUnit()
 
+    # deletes an ingredient
     def deletus_ingredient(self):
         self.frg.removeIngredients(self.ing.getName(), self.ing.getQuant())
 
+
+# Button that adds an ingredient (fridge)
 
 class AddIngredientButtonFr(MDFloatingActionButton):
     fridge: Frg.Fridge
     ms: MainScreen
     type: str
 
+    # calls appropriate refresh method of main screen
     def refresh(self):
         if self.type == "fridge":
             self.ms.refreshFridge()
@@ -130,6 +157,7 @@ class AddIngredientButtonFr(MDFloatingActionButton):
         self.type = type
 
 
+# Same as above, but for freezer
 class AddIngredientButtonFz(MDFloatingActionButton):
     fridge: Frg.Fridge
     ms: MainScreen
@@ -152,6 +180,7 @@ class AddIngredientButtonFz(MDFloatingActionButton):
         self.type = type
 
 
+# Same as above, but for pantry
 class AddIngredientButtonPn(MDFloatingActionButton):
     fridge: Frg.Fridge
     ms: MainScreen
@@ -174,6 +203,7 @@ class AddIngredientButtonPn(MDFloatingActionButton):
         self.type = type
 
 
+# Same as above, but for misc.
 class AddIngredientButtonMs(MDFloatingActionButton):
     fridge: Frg.Fridge
     ms: MainScreen
@@ -196,6 +226,7 @@ class AddIngredientButtonMs(MDFloatingActionButton):
         self.type = type
 
 
+# The dialog that helps to add an ingredient
 class AddIngredientDialog(MDDialog):
     ferg = None
 
@@ -204,15 +235,18 @@ class AddIngredientDialog(MDDialog):
         self.ferg = schlapp
 
 
+# The dialog that helps to edit an ingredient amount
 class EditIngredientDialog(MDDialog):
     pass
 
 
+# The content of the EditIngredientDialog
 class EditIngredientContent(BoxLayout):
     ferg: Frg.Fridge
     ms: MainScreen
     ing: Ing.Ingredient
 
+    # Reads the input of the content's textbox, and edits an ingredient amount appropriately
     def readInput(self):
         op = self.ids.ddItem.current_item
         amount = self.ids.newAmount.text
@@ -236,6 +270,7 @@ class EditIngredientContent(BoxLayout):
         self.ing = ing
 
 
+# The content of the AddIngredientDialog
 class AddIngredientContent(BoxLayout):
     aap = Frg.Fridge
     ms: MainScreen
@@ -245,6 +280,7 @@ class AddIngredientContent(BoxLayout):
         self.aap = ferg
         self.ms = mss
 
+    # Reads the input of the content's textboxes, adds an ingredient or shows an error appropriately
     def readInput(self):
         name = self.ids.ingName.text
         amount = self.ids.ingAmt.text
@@ -262,15 +298,19 @@ class AddIngredientContent(BoxLayout):
             toast('One or more fields are invalid.')
 
 
+# Label that instructs user to use the "+" button
 class NothingThereLabel(MDLabel):
     def __draw_shadow__(self, origin, end, context=None):
         pass
 
 
+# Not actually sure what this is, but whatever
 class InfoLabel(MDLabel):
     def __draw_shadow__(self, origin, end, context=None):
         pass
 
+
+# The class that represents the whole app
 
 class Main(MDApp):
     app = None
@@ -278,9 +318,11 @@ class Main(MDApp):
     sm = None
     menu = None
 
+    # closes current dialog
     def dialog_close(self):
         self.dialog.dismiss(force=True)
 
+    # shows dialog for editing fridge
     def showEditDialogFr(self, ingredient: Ing.Ingredient):
         self.dialog = EditIngredientDialog(type="custom",
                                            title="Edit Ingredient",
@@ -290,6 +332,7 @@ class Main(MDApp):
         self.set_menu()
         self.dialog.open()
 
+    # shows dialog for editing freezer
     def showEditDialogFz(self, ingredient: Ing.Ingredient):
         self.dialog = EditIngredientDialog(type="custom",
                                            title="Edit Ingredient",
@@ -299,6 +342,7 @@ class Main(MDApp):
         self.set_menu()
         self.dialog.open()
 
+    # shows dialog for editing pantry
     def showEditDialogPn(self, ingredient: Ing.Ingredient):
         self.dialog = EditIngredientDialog(type="custom",
                                            title="Edit Ingredient",
@@ -308,6 +352,7 @@ class Main(MDApp):
         self.set_menu()
         self.dialog.open()
 
+    # shows dialog for editing misc
     def showEditDialogMs(self, ingredient: Ing.Ingredient):
         self.dialog = EditIngredientDialog(type="custom",
                                            title="Edit Ingredient",
@@ -317,6 +362,7 @@ class Main(MDApp):
         self.set_menu()
         self.dialog.open()
 
+    # shows dialog for adding ingredient to fridge
     def showAddDialogFrg(self):
         self.dialog = AddIngredientDialog(self.app.getFridge(), type="custom",
                                           title="New Ingredient",
@@ -324,6 +370,7 @@ class Main(MDApp):
                                                                            self.sm.get_screen("Main Screen")))
         self.dialog.open()
 
+    # shows dialog for adding ingredient to freezer
     def showAddDialogFrz(self):
         self.dialog = AddIngredientDialog(self.app.getFreezer(), type="custom",
                                           title="New Ingredient",
@@ -331,6 +378,7 @@ class Main(MDApp):
                                                                            self.sm.get_screen("Main Screen")))
         self.dialog.open()
 
+    # shows dialog for adding ingredient to pantry
     def showAddDialogPn(self):
         self.dialog = AddIngredientDialog(self.app.getPantry(), type="custom",
                                           title="New Ingredient",
@@ -338,6 +386,7 @@ class Main(MDApp):
                                                                            self.sm.get_screen("Main Screen")))
         self.dialog.open()
 
+    # shows dialog for adding ingredient to misc.
     def showAddDialogMs(self):
         self.dialog = AddIngredientDialog(self.app.getMisc(), type="custom",
                                           title="New Ingredient",
@@ -345,6 +394,7 @@ class Main(MDApp):
                                                                            self.sm.get_screen("Main Screen")))
         self.dialog.open()
 
+    # sets current menu to one for choosing whether to add/remove when editing ingredient amount
     def set_menu(self):
         mItems = [{
             'viewclass': 'OneLineListItem',
@@ -360,10 +410,15 @@ class Main(MDApp):
                                    items=mItems, width_mult=2)
         self.menu.bind()
 
+    # sets item for dropdown menu
     def set_item(self, arg):
         self.dialog.content_cls.ids.ddItem.set_item(arg)
         self.menu.dismiss()
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    # build + run app
     def build(self):
         self.app = Apple.Application()
         self.theme_cls.primary_palette = "Green"

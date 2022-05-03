@@ -18,6 +18,8 @@ class SpRecipeGrabber:
     def __init__(self):
         self.ingredients = []
 
+    # grabs a number of Recipes given a list of ingredients
+
     def grabRecipe(self, num: int, calories: int or None):
         self.setCalories(calories)
         recipes: List[Rec.Recipe] = []
@@ -38,6 +40,8 @@ class SpRecipeGrabber:
                 recipes.remove(r)
 
         return recipes
+
+    # getters and setters
 
     def addIngredient(self, ingredient: Ing.Ingredient):
         self.ingredients.append(ingredient)
