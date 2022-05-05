@@ -1,16 +1,15 @@
-from kivy.clock import Clock
 from kivymd.app import MDApp
 from kivymd.uix.button import MDFloatingActionButton
 from kivymd.uix.label import MDLabel
 from kivymd.toast import toast
 from kivy.config import Config
-from kivy.core.window import Window
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivymd.uix.card import MDCard
 from kivymd.uix.dialog import MDDialog
 from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.menu import MDDropdownMenu
 from decimal import *
+from kivy.storage.jsonstore import JsonStore
 
 import Backend.Ingredient as Ing
 import Backend.Application as Apple
@@ -317,6 +316,59 @@ class Main(MDApp):
     dialog = None
     sm = None
     menu = None
+    frStore = None
+    fzStore = None
+    pnStore = None
+    msStore = None
+
+    def saveToJson(self):
+        self.frStore.clear()
+        self.fzStore.clear()
+        self.pnStore.clear()
+        self.msStore.clear()
+
+        for ing in self.app.getFridge().getIngredient():
+            self.frStore.put(ing.getName(), name=ing.getName(), quant=str(ing.getQuant()), unit=ing.getUnit(),
+                             sel=ing.getSelected())
+
+        for ing in self.app.getFreezer().getIngredient():
+            self.fzStore.put(ing.getName(), name=ing.getName(), quant=str(ing.getQuant()), unit=ing.getUnit(),
+                             sel=ing.getSelected())
+
+        for ing in self.app.getPantry().getIngredient():
+            self.pnStore.put(ing.getName(), name=ing.getName(), quant=str(ing.getQuant()), unit=ing.getUnit(),
+                             sel=ing.getSelected())
+
+        for ing in self.app.getMisc().getIngredient():
+            self.msStore.put(ing.getName(), name=ing.getName(), quant=str(ing.getQuant()), unit=ing.getUnit(),
+                             sel=ing.getSelected())
+
+    def loadFromJson(self):
+
+        for j in self.frStore:
+            print(j)
+            name = self.frStore[j]['name']
+            quant = Decimal(self.frStore[j]['quant'])
+            unit = self.frStore[j]['unit']
+            self.app.getFridge().addIngredient(name, quant, unit)
+
+        for j in self.fzStore:
+            name = self.fzStore[j]['name']
+            quant = Decimal(self.fzStore[j]['quant'])
+            unit = self.fzStore[j]['unit']
+            self.app.getFreezer().addIngredient(name, quant, unit)
+
+        for j in self.pnStore:
+            name = self.pnStore[j]['name']
+            quant = Decimal(self.pnStore[j]['quant'])
+            unit = self.pnStore[j]['unit']
+            self.app.getPantry().addIngredient(name, quant, unit)
+
+        for j in self.msStore:
+            name = self.msStore[j]['name']
+            quant = Decimal(self.msStore[j]['quant'])
+            unit = self.msStore[j]['unit']
+            self.app.getMisc().addIngredient(name, quant, unit)
 
     # closes current dialog
     def dialog_close(self):
@@ -417,10 +469,15 @@ class Main(MDApp):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.app = Apple.Application()
+        self.frStore = JsonStore('fridge.json')
+        self.fzStore = JsonStore('freezer.json')
+        self.pnStore = JsonStore('pantry.json')
+        self.msStore = JsonStore('misc.json')
+        self.loadFromJson()
 
     # build + run app
     def build(self):
-        self.app = Apple.Application()
         self.theme_cls.primary_palette = "Green"
         self.sm = ScreenManager()
         self.sm.add_widget(MainScreen(self.app, name="Main Screen"))
@@ -429,12 +486,17 @@ class Main(MDApp):
             print("Connected!")
         else:
             print("Not connected.")
+
+
+
         return self.sm
 
 
 if __name__ == '__main__':
+    wx = 350
+    wy = 740
     Config.set('graphics', 'width', '350')
     Config.set('graphics', 'height', '740')
-    Window.size = (350, 740)
+
     app = Main()
     app.run()

@@ -1,5 +1,6 @@
 import Backend.Fridge as Frg
 import Backend.SpRecipeGrabber as Grb
+import Backend.SpRecipeGrabberTh as Grbth
 import Backend.Recipe as Rec
 from typing import List
 
@@ -11,6 +12,7 @@ class Application:
     freezer: Frg.Fridge
     misc: Frg.Fridge
     grabber = None
+    grabberth = None
     recipes: List[Rec.Recipe]
 
     def __init__(self):
@@ -19,6 +21,7 @@ class Application:
         self.freezer = Frg.Fridge("Freezer")
         self.misc = Frg.Fridge("Other")
         self.grabber = Grb.SpRecipeGrabber()
+        self.grabberth = Grbth.SpRecipeGrabberTh()
         self.recipes = []
 
     # getters and setters
@@ -58,3 +61,22 @@ class Application:
                 self.grabber.addIngredient(i)
 
         self.recipes = self.grabber.grabRecipe(num, calories)
+
+    def getRecipeFromSelectedIngredientsTh(self, num: int, calories: int or None):
+        for i in self.fridge.getIngredient():
+            if i.getSelected():
+                self.grabberth.addIngredient(i)
+
+        for i in self.freezer.getIngredient():
+            if i.getSelected():
+                self.grabberth.addIngredient(i)
+
+        for i in self.pantry.getIngredient():
+            if i.getSelected():
+                self.grabberth.addIngredient(i)
+
+        for i in self.misc.getIngredient():
+            if i.getSelected():
+                self.grabberth.addIngredient(i)
+
+        self.recipes = self.grabberth.grabRecipe(num, calories)

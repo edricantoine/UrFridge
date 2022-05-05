@@ -1,7 +1,6 @@
 import unittest
 import Backend.Fridge as Frg
 import Backend.Application as App
-import Backend.Ingredient as Ing
 
 
 # Joint test suite for Application and Recipe classes
@@ -25,7 +24,7 @@ class MyTestCase(unittest.TestCase):
         self.a.freezer.selectIngredient("Blueberries", True)
         self.a.pantry.selectIngredient("Beef", True)
         self.a.misc.selectIngredient("Ciabatta", True)
-        self.a.getRecipeFromSelectedIngredients(3, None)
+        self.a.getRecipeFromSelectedIngredients(10, None)
 
         for r in self.a.getRecipes():
             r.printAll()

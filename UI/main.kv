@@ -28,6 +28,7 @@
                     spacing: 40
 
 
+
         MDBottomNavigationItem:
             id: fzNav
             name: 'freezer'
@@ -133,7 +134,7 @@
         icon_size: '32sp'
         halign: 'center'
 
-        on_press: self.parent.deletus_ingredient(), self.parent.ms.clearify()
+        on_press: self.parent.deletus_ingredient(), self.parent.ms.clearify(), app.saveToJson()
 
     MDCheckbox:
         id: fDisplaySelector
@@ -211,7 +212,7 @@
         pos_hint: {'center_x': 0.5}
         icon: 'check'
         md_bg_color: get_color_from_hex("#6b8a70")
-        on_press: self.parent.readInput(), app.dialog_close()
+        on_press: self.parent.readInput(), app.dialog_close(), app.saveToJson()
 
 
 <AddIngredientContent@BoxLayout>:
@@ -249,7 +250,7 @@
         pos_hint: {'center_x': 0.5}
         icon: 'check'
         md_bg_color: get_color_from_hex("#6b8a70")
-        on_press: self.parent.readInput(), app.dialog_close()
+        on_press: self.parent.readInput(), app.dialog_close(), app.saveToJson()
 
 
 
