@@ -10,11 +10,16 @@ from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.menu import MDDropdownMenu
 from decimal import *
 from kivy.storage.jsonstore import JsonStore
+import redis
+import Backend.config
 
 import Backend.Ingredient as Ing
 import Backend.Application as Apple
 import Backend.Fridge as Frg
 import http.client as httplib
+
+# r = redis.Redis(host='localhost', port=6379, db=0, password=Backend.config.redispw)
+# r.set("hello", "howdy")
 
 
 # Main class for screens + custom widgets
@@ -316,59 +321,43 @@ class Main(MDApp):
     dialog = None
     sm = None
     menu = None
-    frStore = None
-    fzStore = None
-    pnStore = None
-    msStore = None
+    j_store = None
 
     def saveToJson(self):
-        self.frStore.clear()
-        self.fzStore.clear()
-        self.pnStore.clear()
-        self.msStore.clear()
+        self.j_store.clear()
 
         for ing in self.app.getFridge().getIngredient():
-            self.frStore.put(ing.getName(), name=ing.getName(), quant=str(ing.getQuant()), unit=ing.getUnit(),
-                             sel=ing.getSelected())
+            self.j_store.put(ing.getName(), name=ing.getName(), quant=str(ing.getQuant()), unit=ing.getUnit(),
+                             sel=ing.getSelected(), place="Fridge")
 
         for ing in self.app.getFreezer().getIngredient():
-            self.fzStore.put(ing.getName(), name=ing.getName(), quant=str(ing.getQuant()), unit=ing.getUnit(),
-                             sel=ing.getSelected())
+            self.j_store.put(ing.getName(), name=ing.getName(), quant=str(ing.getQuant()), unit=ing.getUnit(),
+                             sel=ing.getSelected(), place="Freezer")
 
         for ing in self.app.getPantry().getIngredient():
-            self.pnStore.put(ing.getName(), name=ing.getName(), quant=str(ing.getQuant()), unit=ing.getUnit(),
-                             sel=ing.getSelected())
+            self.j_store.put(ing.getName(), name=ing.getName(), quant=str(ing.getQuant()), unit=ing.getUnit(),
+                             sel=ing.getSelected(), place="Pantry")
 
         for ing in self.app.getMisc().getIngredient():
-            self.msStore.put(ing.getName(), name=ing.getName(), quant=str(ing.getQuant()), unit=ing.getUnit(),
-                             sel=ing.getSelected())
+            self.j_store.put(ing.getName(), name=ing.getName(), quant=str(ing.getQuant()), unit=ing.getUnit(),
+                             sel=ing.getSelected(), place="Misc")
 
     def loadFromJson(self):
 
-        for j in self.frStore:
-            print(j)
-            name = self.frStore[j]['name']
-            quant = Decimal(self.frStore[j]['quant'])
-            unit = self.frStore[j]['unit']
-            self.app.getFridge().addIngredient(name, quant, unit)
+        for j in self.j_store:
+            name = self.j_store[j]['name']
+            quant = Decimal(self.j_store[j]['quant'])
+            unit = self.j_store[j]['unit']
+            place = self.j_store[j]['place']
 
-        for j in self.fzStore:
-            name = self.fzStore[j]['name']
-            quant = Decimal(self.fzStore[j]['quant'])
-            unit = self.fzStore[j]['unit']
-            self.app.getFreezer().addIngredient(name, quant, unit)
-
-        for j in self.pnStore:
-            name = self.pnStore[j]['name']
-            quant = Decimal(self.pnStore[j]['quant'])
-            unit = self.pnStore[j]['unit']
-            self.app.getPantry().addIngredient(name, quant, unit)
-
-        for j in self.msStore:
-            name = self.msStore[j]['name']
-            quant = Decimal(self.msStore[j]['quant'])
-            unit = self.msStore[j]['unit']
-            self.app.getMisc().addIngredient(name, quant, unit)
+            if place == "Fridge":
+                self.app.getFridge().addIngredient(name, quant, unit)
+            elif place == "Freezer":
+                self.app.getFreezer().addIngredient(name, quant, unit)
+            elif place == "Pantry":
+                self.app.getPantry().addIngredient(name, quant, unit)
+            elif place == "Misc":
+                self.app.getMisc().addIngredient(name, quant, unit)
 
     # closes current dialog
     def dialog_close(self):
@@ -470,10 +459,7 @@ class Main(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.app = Apple.Application()
-        self.frStore = JsonStore('fridge.json')
-        self.fzStore = JsonStore('freezer.json')
-        self.pnStore = JsonStore('pantry.json')
-        self.msStore = JsonStore('misc.json')
+        self.j_store = JsonStore('ingredience.json')
         self.loadFromJson()
 
     # build + run app
@@ -486,8 +472,6 @@ class Main(MDApp):
             print("Connected!")
         else:
             print("Not connected.")
-
-
 
         return self.sm
 
