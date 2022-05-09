@@ -6,24 +6,23 @@
         panel_color: get_color_from_hex("#d0f7d6")
         selected_color_background: get_color_from_hex("#6b8a70")
         text_color_active: get_color_from_hex("#6b8a70")
+
         MDBottomNavigationItem:
             id: frNav
             name: 'fridge'
             text: 'Fridge'
             icon: 'fridge'
+
             ScrollView:
                 id: frSc
-                size: self.parent.width, self.parent.height
+                size: (self.parent.width, self.parent.height)
                 do_scroll_x: False
                 do_scroll_y: True
                 bar_width: 20
                 BoxLayout:
                     id: frScroll
-                    pos_hint: {'center_y': 0.5, 'center_x': 0.5}
                     size_hint_y: None
-                    height: self.minimum_height
-
-
+                    height: self.minimum_height + dp(56)
                     orientation:'vertical'
                     spacing: 40
 
@@ -42,11 +41,8 @@
                 bar_width: 20
                 BoxLayout:
                     id: fzScroll
-                    pos_hint: {'center_y': 0.5, 'center_x': 0.5}
                     size_hint_y: None
-                    height: self.minimum_height
-
-
+                    height: self.minimum_height + dp(56)
                     orientation:'vertical'
                     spacing: 40
 
@@ -74,9 +70,8 @@
                 bar_width: 20
                 BoxLayout:
                     id: pnScroll
-                    pos_hint: {'center_y': 0.5, 'center_x': 0.5}
                     size_hint_y: None
-                    height: self.minimum_height
+                    height: self.minimum_height + dp(56)
 
                     orientation:'vertical'
                     spacing: 40
@@ -95,25 +90,28 @@
                 bar_width: 20
                 BoxLayout:
                     id: msScroll
-                    pos_hint: {'center_y': 0.5, 'center_x': 0.5}
                     size_hint_y: None
-                    height: self.minimum_height
+                    height: self.minimum_height + dp(56)
 
                     orientation:'vertical'
                     spacing: 40
 
+
 <FridgeDisplay@MDCard>:
     size_hint: None, None
-    size: "300dp", "50dp"
+    size: "325dp", "50dp"
     pos_hint: {"center_x": .5, "center_y": .5}
 
     MDLabel:
         id: fDisplayLabel
         halign: "center"
         text: "Ingredient"
+        font_size: fDisplayLabel.height / 2
         font_name: "DMSans-Regular"
         theme_text_color: "Custom"
         text_color: get_color_from_hex("#08421e")
+        on_texture: self.parent.on_text()
+
 
     MDLabel:
         id: fAmtLabel
@@ -134,7 +132,7 @@
         icon_size: '32sp'
         halign: 'center'
 
-        on_press: self.parent.deletus_ingredient(), self.parent.ms.clearify(), app.saveToJson()
+        on_press: self.parent.deletus_ingredient(), app.saveToJson()
 
     MDCheckbox:
         id: fDisplaySelector

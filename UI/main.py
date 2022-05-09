@@ -10,16 +10,15 @@ from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.menu import MDDropdownMenu
 from decimal import *
 from kivy.storage.jsonstore import JsonStore
-import redis
-import Backend.config
-
+from kivy.core.window import Window
+import sqlite3
 import Backend.Ingredient as Ing
 import Backend.Application as Apple
 import Backend.Fridge as Frg
 import http.client as httplib
 
-# r = redis.Redis(host='localhost', port=6379, db=0, password=Backend.config.redispw)
-# r.set("hello", "howdy")
+squirrel = sqlite3.connect('userdata.db')
+c = squirrel.cursor()
 
 
 # Main class for screens + custom widgets
@@ -46,13 +45,16 @@ class MainScreen(Screen):
         self.clearify()
         self.ids.botNav.switch_tab("home")
 
+    def adj_height(self):
+        self.ids.fzScroll.height = self.ids.fzScroll.minimum_height
+        self.ids.frScroll.height = self.ids.frScroll.minimum_height
+        self.ids.pnScroll.height = self.ids.pnScroll.minimum_height
+        self.ids.msScroll.height = self.ids.msScroll.minimum_height
+
     # clears scrollpanes and refreshes ingredient UI for all four fridges
 
     def clearify(self):
-        self.ids.frScroll.clear_widgets()
-        self.ids.fzScroll.clear_widgets()
-        self.ids.pnScroll.clear_widgets()
-        self.ids.msScroll.clear_widgets()
+
         self.refreshFridge()
         self.refreshFreezer()
         self.refreshPantry()
@@ -66,6 +68,7 @@ class MainScreen(Screen):
             self.ids.frScroll.add_widget(FridgeDisplay(i, self.app.getFridge(), self))
         self.ids.frScroll.add_widget(AddIngredientButtonFr(self.app.fridge, self, "fridge"))
         self.ids.frScroll.add_widget(NothingThereLabel())
+        self.ids.frScroll.add_widget(BoxLayout(size_hint_y='56dp'))
 
     # clears scrollpanes and refreshes ingredient UI for freezer
     def refreshFreezer(self):
@@ -74,6 +77,7 @@ class MainScreen(Screen):
             self.ids.fzScroll.add_widget(FridgeDisplay(i, self.app.getFreezer(), self))
         self.ids.fzScroll.add_widget(AddIngredientButtonFz(self.app.freezer, self, "freezer"))
         self.ids.fzScroll.add_widget(NothingThereLabel())
+        self.ids.fzScroll.add_widget(BoxLayout(size_hint_y='56dp'))
 
     # clears scrollpanes and refreshes ingredient UI for pantry
     def refreshPantry(self):
@@ -82,6 +86,7 @@ class MainScreen(Screen):
             self.ids.pnScroll.add_widget(FridgeDisplay(i, self.app.getPantry(), self))
         self.ids.pnScroll.add_widget(AddIngredientButtonPn(self.app.pantry, self, "pantry"))
         self.ids.pnScroll.add_widget(NothingThereLabel())
+        self.ids.pnScroll.add_widget(BoxLayout(size_hint_y='56dp'))
 
     # clears scrollpanes and refreshes ingredient UI for misc. section
     def refreshMisc(self):
@@ -90,6 +95,7 @@ class MainScreen(Screen):
             self.ids.msScroll.add_widget(FridgeDisplay(i, self.app.getMisc(), self))
         self.ids.msScroll.add_widget(AddIngredientButtonMs(self.app.misc, self, "misc"))
         self.ids.msScroll.add_widget(NothingThereLabel())
+        self.ids.msScroll.add_widget(BoxLayout(size_hint_y='56dp'))
 
 
 # holds all screens in app
@@ -102,6 +108,14 @@ class FridgeDisplay(MDCard):
     ing: Ing.Ingredient
     frg = Frg.Fridge
     ms = MainScreen
+
+    def on_text(self):
+        if self.ids.fDisplayLabel.texture_size[0] >= self.ids.fDisplayLabel.width or \
+                self.ids.fDisplayLabel.texture_size[1] >= self.ids.fDisplayLabel.height:
+            self.ids.fDisplayLabel.font_size -= 7
+        if self.ids.fAmtLabel.texture_size[0] >= self.ids.fAmtLabel.width or self.ids.fAmtLabel.texture_size[
+            1] >= self.ids.fAmtLabel.height:
+            self.ids.fAmtLabel.font_size -= 7
 
     # handles checkbox changing state
     def on_checkbox(self, checkbox, value):
@@ -134,6 +148,14 @@ class FridgeDisplay(MDCard):
     # deletes an ingredient
     def deletus_ingredient(self):
         self.frg.removeIngredients(self.ing.getName(), self.ing.getQuant())
+        if self.frg.getName() == "Fridge":
+            self.ms.refreshFridge()
+        elif self.frg.getName() == "Freezer":
+            self.ms.refreshFreezer()
+        elif self.frg.getName() == "Pantry":
+            self.ms.refreshPantry()
+        else:
+            self.ms.refreshFridge()
 
 
 # Button that adds an ingredient (fridge)
@@ -249,6 +271,7 @@ class EditIngredientContent(BoxLayout):
     ferg: Frg.Fridge
     ms: MainScreen
     ing: Ing.Ingredient
+    type: str
 
     # Reads the input of the content's textbox, and edits an ingredient amount appropriately
     def readInput(self):
@@ -264,25 +287,35 @@ class EditIngredientContent(BoxLayout):
         else:
             toast("Invalid command issued.")
 
-        self.ms.clearify()
+        if self.type == "fridge":
+            self.ms.refreshFridge()
+        elif self.type == 'freezer':
+            self.ms.refreshFreezer()
+        elif self.type == 'pantry':
+            self.ms.refreshPantry()
+        elif self.type == 'misc':
+            self.ms.refreshMisc()
         self.ids.newAmount.text = ""
 
-    def __init__(self, ferg: Frg.Fridge, mss: MainScreen, ing: Ing.Ingredient, **kwargs):
+    def __init__(self, ferg: Frg.Fridge, mss: MainScreen, ing: Ing.Ingredient, typ: str, **kwargs):
         super().__init__(**kwargs)
         self.ferg = ferg
         self.ms = mss
         self.ing = ing
+        self.type = typ
 
 
 # The content of the AddIngredientDialog
 class AddIngredientContent(BoxLayout):
     aap = Frg.Fridge
     ms: MainScreen
+    type: str
 
-    def __init__(self, ferg: Frg.Fridge, mss: MainScreen, **kwargs):
+    def __init__(self, ferg: Frg.Fridge, mss: MainScreen, typ: str, **kwargs):
         super().__init__(**kwargs)
         self.aap = ferg
         self.ms = mss
+        self.type = typ
 
     # Reads the input of the content's textboxes, adds an ingredient or shows an error appropriately
     def readInput(self):
@@ -292,7 +325,14 @@ class AddIngredientContent(BoxLayout):
         if name != "" and amount != "" and unit != "" and len(name) <= 10 and len(amount) <= 10 and len(unit) <= 10:
 
             if self.aap.addIngredient(name, Decimal(amount), unit):
-                self.ms.clearify()
+                if self.type == "fridge":
+                    self.ms.refreshFridge()
+                elif self.type == 'freezer':
+                    self.ms.refreshFreezer()
+                elif self.type == 'pantry':
+                    self.ms.refreshPantry()
+                elif self.type == 'misc':
+                    self.ms.refreshMisc()
                 self.ids.ingName.text = ""
                 self.ids.ingAmt.text = ""
                 self.ids.ingUnit.text = ""
@@ -369,7 +409,7 @@ class Main(MDApp):
                                            title="Edit Ingredient",
                                            content_cls=EditIngredientContent(self.app.getFridge(),
                                                                              self.sm.get_screen("Main Screen"),
-                                                                             ingredient))
+                                                                             ingredient, "fridge"))
         self.set_menu()
         self.dialog.open()
 
@@ -379,7 +419,7 @@ class Main(MDApp):
                                            title="Edit Ingredient",
                                            content_cls=EditIngredientContent(self.app.getFridge(),
                                                                              self.sm.get_screen("Main Screen"),
-                                                                             ingredient))
+                                                                             ingredient, "freezer"))
         self.set_menu()
         self.dialog.open()
 
@@ -389,7 +429,7 @@ class Main(MDApp):
                                            title="Edit Ingredient",
                                            content_cls=EditIngredientContent(self.app.getFridge(),
                                                                              self.sm.get_screen("Main Screen"),
-                                                                             ingredient))
+                                                                             ingredient, "pantry"))
         self.set_menu()
         self.dialog.open()
 
@@ -399,7 +439,7 @@ class Main(MDApp):
                                            title="Edit Ingredient",
                                            content_cls=EditIngredientContent(self.app.getFridge(),
                                                                              self.sm.get_screen("Main Screen"),
-                                                                             ingredient))
+                                                                             ingredient, "misc"))
         self.set_menu()
         self.dialog.open()
 
@@ -408,7 +448,7 @@ class Main(MDApp):
         self.dialog = AddIngredientDialog(self.app.getFridge(), type="custom",
                                           title="New Ingredient",
                                           content_cls=AddIngredientContent(self.app.getFridge(),
-                                                                           self.sm.get_screen("Main Screen")))
+                                                                           self.sm.get_screen("Main Screen"), "fridge"))
         self.dialog.open()
 
     # shows dialog for adding ingredient to freezer
@@ -416,7 +456,8 @@ class Main(MDApp):
         self.dialog = AddIngredientDialog(self.app.getFreezer(), type="custom",
                                           title="New Ingredient",
                                           content_cls=AddIngredientContent(self.app.getFreezer(),
-                                                                           self.sm.get_screen("Main Screen")))
+                                                                           self.sm.get_screen("Main Screen"),
+                                                                           "freezer"))
         self.dialog.open()
 
     # shows dialog for adding ingredient to pantry
@@ -424,7 +465,7 @@ class Main(MDApp):
         self.dialog = AddIngredientDialog(self.app.getPantry(), type="custom",
                                           title="New Ingredient",
                                           content_cls=AddIngredientContent(self.app.getPantry(),
-                                                                           self.sm.get_screen("Main Screen")))
+                                                                           self.sm.get_screen("Main Screen"), "pantry"))
         self.dialog.open()
 
     # shows dialog for adding ingredient to misc.
@@ -432,7 +473,7 @@ class Main(MDApp):
         self.dialog = AddIngredientDialog(self.app.getMisc(), type="custom",
                                           title="New Ingredient",
                                           content_cls=AddIngredientContent(self.app.getMisc(),
-                                                                           self.sm.get_screen("Main Screen")))
+                                                                           self.sm.get_screen("Main Screen"), "misc"))
         self.dialog.open()
 
     # sets current menu to one for choosing whether to add/remove when editing ingredient amount
@@ -482,5 +523,6 @@ if __name__ == '__main__':
     Config.set('graphics', 'width', '350')
     Config.set('graphics', 'height', '740')
 
+    Window.size = (wx, wy)
     app = Main()
     app.run()
