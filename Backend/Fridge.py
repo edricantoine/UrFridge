@@ -21,13 +21,20 @@ class Fridge:
     def getIngredient(self):
         return self.ingredients
 
-    # adds an ingredient with quantity to the fridge, not selected by default
+    # adds ingredient to this fridge
     def addIngredient(self, name: str, quant: Decimal, unit: str):
+        self.ingredients.append(Ing.Ingredient(name, quant, unit))
+
+    # adds ingredient directly to fridge
+    def addIngredientTwo(self, ig: Ing.Ingredient):
+        self.ingredients.append(ig)
+
+    # verifies that ingredient with name does not already exist in this fridge
+    def verifyIngredient(self, name: str):
         for i in self.ingredients:
             if i.getName() == name:
                 return False
 
-        self.ingredients.append(Ing.Ingredient(name, quant, unit))
         return True
 
     # increases the quantity of an already existing item in the fridge by quant

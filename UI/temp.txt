@@ -1,0 +1,22 @@
+ScrollView:
+                id: msSc
+                size: self.parent.width, self.parent.height
+                do_scroll_x: False
+                do_scroll_y: True
+                bar_width: 20
+                BoxLayout:
+                    id: msScroll
+                    size_hint_y: None
+                    height: self.minimum_height + dp(56)
+
+                    orientation:'vertical'
+                    spacing: 40
+
+
+
+self.ids.msScroll.clear_widgets()
+        for i in self.app.misc.getIngredient():
+            self.ids.msScroll.add_widget(FridgeDisplay(i, self.app.getMisc(), self))
+        self.ids.msScroll.add_widget(AddIngredientButtonMs(self.app.misc, self, "misc"))
+        self.ids.msScroll.add_widget(NothingThereLabel())
+        self.ids.msScroll.add_widget(BoxLayout(size_hint_y='56dp'))
