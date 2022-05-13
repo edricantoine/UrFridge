@@ -16,6 +16,8 @@ class Application:
     grabber = None
     grabberth = None
     recipes: List[Rec.Recipe]
+    user_id: str
+    has_chosen_id: bool
 
     def __init__(self):
         self.fridge = Frg.Fridge("Fridge")
@@ -25,8 +27,16 @@ class Application:
         self.grabber = Grb.SpRecipeGrabber()
         self.grabberth = Grbth.SpRecipeGrabberTh()
         self.recipes = []
+        self.has_chosen_id = False
+        self.user_id = None
 
     # getters and setters
+
+    def getHasChosenId(self):
+        return self.has_chosen_id
+
+    def getId(self):
+        return self.user_id
 
     def getFridge(self):
         return self.fridge

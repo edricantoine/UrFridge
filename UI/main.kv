@@ -40,6 +40,7 @@
                     id: frBb
 
 
+
         MDBottomNavigationItem:
             id: fzNav
             name: 'freezer'
@@ -148,6 +149,53 @@
 
                 AnchorLayout:
                     id: msBb
+
+
+<LoginScreen>:
+    id: loginScreen
+    GridLayout:
+        id: loginGrid
+        cols: 1
+        rows_minimum: {0: (self.height) * 0.5, 1: (self.height) * 0.6}
+        row_force_default: True
+        Image:
+            id: appLogo
+            source: 'logo2.png'
+            allow_stretch: True
+
+
+
+
+<LoginLayout@GridLayout>:
+    cols: 1
+    spacing: 40
+    rows_minimum: {0: (self.height) * 0.25, 1: (self.height) * 0.3}
+    row_force_default: True
+    MDTextField:
+        pos_hint: {'center_x': 0.5}
+        mode: 'fill'
+        id: idName
+        font_name: "DMSans-Regular"
+        hint_text: "Enter a unique User ID!"
+        max_text_length: 20
+        color_mode: 'custom'
+        line_color_focus: get_color_from_hex("#6b8a70")
+
+    AnchorLayout:
+        MDFillRoundFlatButton:
+            pos_hint: {'center_x': 0.5}
+            text: "CREATE ACCOUNT"
+            font_name: "DMSans-Regular"
+            font_size: "15sp"
+            md_bg_color: get_color_from_hex("#6b8a70")
+
+    MDLabel:
+        halign: 'center'
+        font_name: "DMSans-Regular"
+        text: "YourFridge © Edric Antoine 2022"
+        theme_text_color: "Custom"
+        font_size: '10sp'
+        text_color: get_color_from_hex("#bec5d1")
 
 
 
@@ -259,6 +307,8 @@
         max_text_length: 10
         helper_text: "This field is required"
         helper_text_mode: 'on_focus'
+        color_mode: 'custom'
+        line_color_focus: get_color_from_hex("#6b8a70")
 
 
     MDFloatingActionButton:
@@ -281,6 +331,8 @@
         required: True
         helper_text: "This field is required"
         helper_text_mode: "on_focus"
+        color_mode: 'custom'
+        line_color_focus: get_color_from_hex("#6b8a70")
 
     MDTextField:
         id: ingAmt
@@ -290,6 +342,8 @@
         required: True
         helper_text: "This field is required"
         helper_text_mode: "on_focus"
+        color_mode: 'custom'
+        line_color_focus: get_color_from_hex("#6b8a70")
 
     MDTextField:
         id: ingUnit
@@ -298,6 +352,8 @@
         required: True
         helper_text: "This field is required"
         helper_text_mode: "on_focus"
+        color_mode: 'custom'
+        line_color_focus: get_color_from_hex("#6b8a70")
 
     MDFloatingActionButton:
         id: addButton

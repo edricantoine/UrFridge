@@ -1,3 +1,4 @@
+from kivy.utils import rgba
 from kivymd.app import MDApp
 from kivymd.uix.button import MDFloatingActionButton
 from kivymd.uix.label import MDLabel
@@ -7,6 +8,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivymd.uix.card import MDCard
 from kivymd.uix.dialog import MDDialog
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivymd.uix.menu import MDDropdownMenu
 from decimal import *
 from kivy.storage.jsonstore import JsonStore
@@ -16,8 +18,10 @@ import Backend.Ingredient as Ing
 import Backend.Application as Apple
 import Backend.Fridge as Frg
 import http.client as httplib
+import os
 
-squirrel = sqlite3.connect('userdata.db')
+app_path = os.path.dirname(os.path.abspath(__file__))
+squirrel = sqlite3.connect(os.path.join(app_path, 'userdata.db'))
 c = squirrel.cursor()
 
 
@@ -34,6 +38,23 @@ def check_connectivity():
         conn.close()
 
 
+class LoginScreen(Screen):
+    app = None
+
+    def __init__(self, apple: Apple.Application, **kw):
+        super().__init__(**kw)
+        self.app = apple
+        self.ids.loginGrid.add_widget(LoginLayout(self.app))
+
+
+class LoginLayout(GridLayout):
+    app = None
+
+    def __init__(self, apple: Apple.Application, **kwargs):
+        super().__init__(**kwargs)
+        self.app = apple
+
+
 # The main screen, with the bottom navigation panels + their contents
 
 class MainScreen(Screen):
@@ -46,12 +67,24 @@ class MainScreen(Screen):
         self.ids.botNav.switch_tab("home")
         self.ids.msBb.add_widget(AddIngredientButtonMs(self.app.misc, self, "misc"))
         self.ids.msBox.add_widget(NothingThereLabel())
+        self.ids.msBox.add_widget(MDLabel(halign='center', font_name='DMSans-Regular', text='YourFridge © Edric '
+                                                                                            'Antoine 2022',
+                                          theme_text_color="Custom", font_size='10sp', text_color= rgba("#bec5d1")))
         self.ids.pnBb.add_widget(AddIngredientButtonPn(self.app.pantry, self, "pantry"))
         self.ids.pnBox.add_widget(NothingThereLabel())
+        self.ids.pnBox.add_widget(MDLabel(halign='center', font_name='DMSans-Regular', text='YourFridge © Edric '
+                                                                                            'Antoine 2022',
+                                          theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
         self.ids.fzBb.add_widget(AddIngredientButtonFz(self.app.freezer, self, "freezer"))
         self.ids.fzBox.add_widget(NothingThereLabel())
+        self.ids.fzBox.add_widget(MDLabel(halign='center', font_name='DMSans-Regular', text='YourFridge © Edric '
+                                                                                            'Antoine 2022',
+                                          theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
         self.ids.frBb.add_widget(AddIngredientButtonFr(self.app.fridge, self, "fridge"))
         self.ids.frBox.add_widget(NothingThereLabel())
+        self.ids.frBox.add_widget(MDLabel(halign='center', font_name='DMSans-Regular', text='YourFridge © Edric '
+                                                                                            'Antoine 2022',
+                                          theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
 
     # clears scrollpanes and refreshes ingredient UI for all four fridges
 
@@ -312,7 +345,7 @@ class AddIngredientContent(BoxLayout):
         name = self.ids.ingName.text
         amount = self.ids.ingAmt.text
         unit = self.ids.ingUnit.text
-        if name != "" and amount != "" and unit != "" and len(name) <= 10 and len(amount) <= 10 and len(unit) <= 10:
+        if name != "" and amount != "" and unit != "" and name != "REGISTERED" and len(name) <= 10 and len(amount) <= 10 and len(unit) <= 10:
             ig = Ing.Ingredient(name, Decimal(amount), unit)
             if self.aap.addIngredientTwo(ig, self.type):
                 if self.type == "fridge":
@@ -375,19 +408,20 @@ class Main(MDApp):
     def loadFromJson(self):
 
         for j in self.j_store:
-            name = self.j_store[j]['name']
-            quant = Decimal(self.j_store[j]['quant'])
-            unit = self.j_store[j]['unit']
-            place = self.j_store[j]['place']
+            if j != 'REGISTERED':
+                name = self.j_store[j]['name']
+                quant = Decimal(self.j_store[j]['quant'])
+                unit = self.j_store[j]['unit']
+                place = self.j_store[j]['place']
 
-            if place == "Fridge":
-                self.app.getFridge().addIngredient(name, quant, unit)
-            elif place == "Freezer":
-                self.app.getFreezer().addIngredient(name, quant, unit)
-            elif place == "Pantry":
-                self.app.getPantry().addIngredient(name, quant, unit)
-            elif place == "Misc":
-                self.app.getMisc().addIngredient(name, quant, unit)
+                if place == "Fridge":
+                    self.app.getFridge().addIngredient(name, quant, unit)
+                elif place == "Freezer":
+                    self.app.getFreezer().addIngredient(name, quant, unit)
+                elif place == "Pantry":
+                    self.app.getPantry().addIngredient(name, quant, unit)
+                elif place == "Misc":
+                    self.app.getMisc().addIngredient(name, quant, unit)
 
     # closes current dialog
     def dialog_close(self):
@@ -498,6 +532,7 @@ class Main(MDApp):
         self.theme_cls.primary_palette = "Green"
         self.sm = ScreenManager()
         self.sm.add_widget(MainScreen(self.app, name="Main Screen"))
+        self.sm.add_widget(LoginScreen(self.app, name="Login Screen"))
 
         if check_connectivity():
             print("Connected!")
