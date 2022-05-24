@@ -9,4 +9,9 @@ in their food storage.
 
 Powered by the Spoonacular API.
 
+TODO: update unit tests,
+finish integrating SQLite into app
+
 Created by Edric Antoine (2022)
+
+CURRENTLY A WORK IN PROGRESS.

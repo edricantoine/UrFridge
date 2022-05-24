@@ -28,7 +28,7 @@ class Application:
         self.grabberth = Grbth.SpRecipeGrabberTh()
         self.recipes = []
         self.has_chosen_id = False
-        self.user_id = None
+        self.user_id = ""
 
     # getters and setters
 
@@ -121,3 +121,17 @@ class Application:
                 self.grabberth.addIngredient(i)
 
         self.recipes = self.grabberth.grabRecipe(num, calories)
+
+    def set_id(self, u_id: str):
+        self.user_id = u_id
+
+    def set_has_id(self, h_id: bool):
+        self.has_chosen_id = h_id
+
+    def wipe(self):
+        self.fridge.ingredients.clear()
+        self.freezer.ingredients.clear()
+        self.pantry.ingredients.clear()
+        self.misc.ingredients.clear()
+        self.user_id = ""
+        self.has_chosen_id = False

@@ -19,6 +19,7 @@ import Backend.Application as Apple
 import Backend.Fridge as Frg
 import http.client as httplib
 import os
+import json
 
 app_path = os.path.dirname(os.path.abspath(__file__))
 squirrel = sqlite3.connect(os.path.join(app_path, 'userdata.db'))
@@ -69,7 +70,7 @@ class MainScreen(Screen):
         self.ids.msBox.add_widget(NothingThereLabel())
         self.ids.msBox.add_widget(MDLabel(halign='center', font_name='DMSans-Regular', text='YourFridge © Edric '
                                                                                             'Antoine 2022',
-                                          theme_text_color="Custom", font_size='10sp', text_color= rgba("#bec5d1")))
+                                          theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
         self.ids.pnBb.add_widget(AddIngredientButtonPn(self.app.pantry, self, "pantry"))
         self.ids.pnBox.add_widget(NothingThereLabel())
         self.ids.pnBox.add_widget(MDLabel(halign='center', font_name='DMSans-Regular', text='YourFridge © Edric '
@@ -179,6 +180,8 @@ class FridgeDisplay(MDCard):
             self.ms.ids.pnScroll.remove_widget(self)
         else:
             self.ms.ids.msScroll.remove_widget(self)
+
+        # TODO: delete from db
 
 
 # Button that adds an ingredient (fridge)
@@ -310,6 +313,8 @@ class EditIngredientContent(BoxLayout):
         else:
             toast("Invalid command issued.")
 
+        # TODO: Check if item is removed, remove from db, otherwise edit db
+
         if self.type == "fridge":
             self.ms.refreshFridge()
         elif self.type == 'freezer':
@@ -345,7 +350,8 @@ class AddIngredientContent(BoxLayout):
         name = self.ids.ingName.text
         amount = self.ids.ingAmt.text
         unit = self.ids.ingUnit.text
-        if name != "" and amount != "" and unit != "" and name != "REGISTERED" and len(name) <= 10 and len(amount) <= 10 and len(unit) <= 10:
+        if name != "" and amount != "" and unit != "" and name != "REGISTERED" and len(name) <= 10 and len(
+                amount) <= 10 and len(unit) <= 10:
             ig = Ing.Ingredient(name, Decimal(amount), unit)
             if self.aap.addIngredientTwo(ig, self.type):
                 if self.type == "fridge":
@@ -359,6 +365,7 @@ class AddIngredientContent(BoxLayout):
                 self.ids.ingName.text = ""
                 self.ids.ingAmt.text = ""
                 self.ids.ingUnit.text = ""
+                # TODO: save new ingredient to SQL database here
             else:
                 toast("An ingredient with that name already exists.")
         else:
@@ -525,7 +532,74 @@ class Main(MDApp):
         super().__init__(**kwargs)
         self.app = Apple.Application()
         self.j_store = JsonStore('ingredience.json')
-        self.loadFromJson()
+        # self.loadFromJson()
+        # self.loadRegState()
+        command = """
+        CREATE TABLE IF NOT EXISTS users(
+        id varchar(25) NOT NULL,
+        logged int NOT NULL
+        )
+        """
+        c.execute(command)
+        command = """
+        CREATE TABLE IF NOT EXISTS ingredients(
+        name varchar(25) NOT NULL,
+        amount decimal(10, 2) NOT NULL,
+        unit varchar(25) NOT NULL,
+        owner varchar(25) NOT NULL,
+        location varchar(25) NOT NULL,
+        FOREIGN KEY(owner) REFERENCES users(id)
+        )
+        """
+        c.execute(command)
+        squirrel.commit()
+
+    def loadRegState(self):
+        if "REGISTERED" in self.j_store:
+            self.app.set_has_id(True)
+            self.app.set_id(self.j_store['REGISTERED']['name'])
+        else:
+            self.app.set_has_id(False)
+
+    def login(self, u_id: str):
+        c.execute("""SELECT * FROM users WHERE id = ?""", (u_id,))
+        data = c.fetchall()
+        print(data)
+        if len(data) == 0:  # new user
+            print("!")
+            c.execute("""UPDATE users 
+                         SET logged = 0 
+                         WHERE logged = 1""")
+            c.execute("INSERT INTO users (id, logged) VALUES (?, ?)", (u_id, 1))
+            squirrel.commit()
+
+            self.app.set_has_id(True)
+            self.app.set_id(u_id)
+            # self.j_store.put("REGISTERED", name=u_id)
+            self.sm.current = 'Main Screen'
+        else:  # returning user
+            print("?")
+            c.execute("""UPDATE users 
+                         SET logged = 0 
+                         WHERE logged = 1""")
+            c.execute("""UPDATE users
+                         SET logged = 1
+                         WHERE id = ?""", (u_id,))
+            squirrel.commit()
+            self.app.set_has_id(True)
+            self.app.set_id(u_id)
+            self.sm.current = 'Main Screen'
+            self.initializeFromId(u_id)
+
+    def logout(self):
+        c.execute("""UPDATE users
+                     SET logged = 0
+                     WHERE logged = 1""")
+        squirrel.commit()
+        self.app.wipe()
+
+    def initializeFromId(self, u_id: str):
+        pass
 
     # build + run app
     def build(self):
@@ -538,6 +612,9 @@ class Main(MDApp):
             print("Connected!")
         else:
             print("Not connected.")
+
+        # TODO: Keep last user logged in and initialize the app to their state
+        self.sm.current = 'Login Screen'
 
         return self.sm
 

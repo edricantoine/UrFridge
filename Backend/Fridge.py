@@ -53,9 +53,10 @@ class Fridge:
                 i.setQuantRelative(quant * -1)
                 if i.getQuant() <= 0:
                     self.ingredients.remove(i)
-                    return True
+                    return 1
+                return 0
 
-        return False
+        return -1
 
     # sets ingredient's selected value to given boolean
     def selectIngredient(self, name: str, selected: bool):

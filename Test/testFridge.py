@@ -33,7 +33,7 @@ class MyTestCase(unittest.TestCase):
     def testRemoveIngredientNotExist(self):
         self.f = Frg.Fridge("My Fridge")
         self.f.addIngredient("Eggs", 12, "eggs")
-        self.assertFalse(self.f.removeIngredients("Chicken", 3))
+        self.assertEqual(self.f.removeIngredients("Chicken", 3), -1)
 
     def testSelectExistingIngredient(self):
         self.f = Frg.Fridge("My Fridge")
