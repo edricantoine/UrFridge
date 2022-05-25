@@ -39,6 +39,18 @@ def check_connectivity():
         conn.close()
 
 
+def adapt_decimal(d: Decimal):
+    return str(d)
+
+
+def convert_decimal(s):
+    return Decimal(s)
+
+
+sqlite3.register_adapter(Decimal, adapt_decimal)
+sqlite3.register_converter("decimal", convert_decimal)
+
+
 class LoginScreen(Screen):
     app = None
 
@@ -181,7 +193,9 @@ class FridgeDisplay(MDCard):
         else:
             self.ms.ids.msScroll.remove_widget(self)
 
-        # TODO: delete from db
+        c.execute("""DELETE FROM ingredients
+                     WHERE name = ? AND owner = ?""", (self.ing.getName(), self.ms.app.getId()))
+        squirrel.commit()
 
 
 # Button that adds an ingredient (fridge)
@@ -308,12 +322,26 @@ class EditIngredientContent(BoxLayout):
 
         if op == "Add":
             self.ferg.increaseIngredient(self.ing.getName(), Decimal(amount))
+            c.execute("""UPDATE ingredients
+                                         SET amount = ?
+                                         WHERE name = ? AND owner = ?""",
+                      (self.ing.getQuant(), self.ing.getName(), self.ms.app.getId()))
+            squirrel.commit()
         elif op == "Remove":
-            self.ferg.removeIngredients(self.ing.getName(), Decimal(amount))
+            a = self.ferg.removeIngredients(self.ing.getName(), Decimal(amount))
+            if a == 1:
+                c.execute("""DELETE FROM ingredients
+                                     WHERE name = ? AND owner = ?""", (self.ing.getName(), self.ms.app.getId()))
+                squirrel.commit()
+            elif a == 0:
+                c.execute("""UPDATE ingredients
+                             SET amount = ?
+                             WHERE name = ? AND owner = ?""",
+                          (self.ing.getQuant(), self.ing.getName(), self.ms.app.getId()))
+                squirrel.commit()
+
         else:
             toast("Invalid command issued.")
-
-        # TODO: Check if item is removed, remove from db, otherwise edit db
 
         if self.type == "fridge":
             self.ms.refreshFridge()
@@ -356,16 +384,32 @@ class AddIngredientContent(BoxLayout):
             if self.aap.addIngredientTwo(ig, self.type):
                 if self.type == "fridge":
                     self.ms.ids.frScroll.add_widget(FridgeDisplay(ig, self.aap.getFridge(), self.ms))
+                    c.execute("""INSERT INTO ingredients(name, amount, unit, owner, location)
+                                                 VALUES(?, ?, ?, ?, ?)""",
+                              (ig.getName(), ig.getQuant(), ig.getUnit(), self.aap.getId(), "Fridge"))
+                    squirrel.commit()
                 elif self.type == 'freezer':
                     self.ms.ids.fzScroll.add_widget(FridgeDisplay(ig, self.aap.getFreezer(), self.ms))
+                    c.execute("""INSERT INTO ingredients(name, amount, unit, owner, location)
+                                                                     VALUES(?, ?, ?, ?, ?)""",
+                              (ig.getName(), ig.getQuant(), ig.getUnit(), self.aap.getId(), "Freezer"))
+                    squirrel.commit()
                 elif self.type == 'pantry':
                     self.ms.ids.pnScroll.add_widget(FridgeDisplay(ig, self.aap.getPantry(), self.ms))
+                    c.execute("""INSERT INTO ingredients(name, amount, unit, owner, location)
+                                                                     VALUES(?, ?, ?, ?, ?)""",
+                              (ig.getName(), ig.getQuant(), ig.getUnit(), self.aap.getId(), "Pantry"))
+                    squirrel.commit()
                 elif self.type == 'misc':
                     self.ms.ids.msScroll.add_widget(FridgeDisplay(ig, self.aap.getMisc(), self.ms))
+                    c.execute("""INSERT INTO ingredients(name, amount, unit, owner, location)
+                                                                     VALUES(?, ?, ?, ?, ?)""",
+                              (ig.getName(), ig.getQuant(), ig.getUnit(), self.aap.getId(), "Misc"))
+                    squirrel.commit()
                 self.ids.ingName.text = ""
                 self.ids.ingAmt.text = ""
                 self.ids.ingUnit.text = ""
-                # TODO: save new ingredient to SQL database here
+
             else:
                 toast("An ingredient with that name already exists.")
         else:
@@ -531,6 +575,7 @@ class Main(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.app = Apple.Application()
+        self.app.wipe()
         self.j_store = JsonStore('ingredience.json')
         # self.loadFromJson()
         # self.loadRegState()
@@ -553,6 +598,11 @@ class Main(MDApp):
         """
         c.execute(command)
         squirrel.commit()
+        c.execute("""SELECT * FROM users WHERE logged = 1""")
+        data = c.fetchall()
+        # print(data[0][0])
+        if len(data) != 0:
+            self.initializeFromId(data[0][0])
 
     def loadRegState(self):
         if "REGISTERED" in self.j_store:
@@ -564,7 +614,7 @@ class Main(MDApp):
     def login(self, u_id: str):
         c.execute("""SELECT * FROM users WHERE id = ?""", (u_id,))
         data = c.fetchall()
-        print(data)
+        # print(data)
         if len(data) == 0:  # new user
             print("!")
             c.execute("""UPDATE users 
@@ -599,7 +649,32 @@ class Main(MDApp):
         self.app.wipe()
 
     def initializeFromId(self, u_id: str):
-        pass
+        self.app.set_id(u_id)
+        self.app.set_has_id(True)
+        c.execute("""SELECT * FROM ingredients WHERE owner = ? AND location = 'Fridge'""", (u_id,))
+        data = c.fetchall()
+        print(data)
+        for d in data:
+            i = Ing.Ingredient(d[0], d[1], d[2])
+            self.app.getFridge().addIngredientTwo(i)
+
+        c.execute("""SELECT * FROM ingredients WHERE owner = ? AND location = 'Freezer'""", (u_id,))
+        data = c.fetchall()
+        for d in data:
+            i = Ing.Ingredient(d[0], d[1], d[2])
+            self.app.getFreezer().addIngredientTwo(i)
+
+        c.execute("""SELECT * FROM ingredients WHERE owner = ? AND location = 'Pantry'""", (u_id,))
+        data = c.fetchall()
+        for d in data:
+            i = Ing.Ingredient(d[0], d[1], d[2])
+            self.app.getPantry().addIngredientTwo(i)
+
+        c.execute("""SELECT * FROM ingredients WHERE owner = ? AND location = 'Misc'""", (u_id,))
+        data = c.fetchall()
+        for d in data:
+            i = Ing.Ingredient(d[0], d[1], d[2])
+            self.app.getMisc().addIngredientTwo(i)
 
     # build + run app
     def build(self):
@@ -613,8 +688,14 @@ class Main(MDApp):
         else:
             print("Not connected.")
 
-        # TODO: Keep last user logged in and initialize the app to their state
-        self.sm.current = 'Login Screen'
+        c.execute("""SELECT * FROM users WHERE logged = 1""")
+        data = c.fetchall()
+        # print(data[0][0])
+        if len(data) == 0:
+            self.sm.current = 'Login Screen'
+        else:
+            self.sm.current = 'Main Screen'
+            self.initializeFromId(data[0][0])
 
         return self.sm
 

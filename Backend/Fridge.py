@@ -50,7 +50,7 @@ class Fridge:
     def removeIngredients(self, name: str, quant: Decimal):
         for i in self.ingredients:
             if i.getName() == name:
-                i.setQuantRelative(quant * -1)
+                i.setQuantRelative(Decimal(quant * -1))
                 if i.getQuant() <= 0:
                     self.ingredients.remove(i)
                     return 1
