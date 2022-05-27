@@ -1,154 +1,176 @@
 #:import get_color_from_hex kivy.utils.get_color_from_hex
 <MainScreen>:
     id: mainScreen
-    MDBottomNavigation:
-        id: botNav
-        panel_color: get_color_from_hex("#d0f7d6")
-        selected_color_background: get_color_from_hex("#6b8a70")
-        text_color_active: get_color_from_hex("#6b8a70")
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDToolbar:
+            id: mainToolbar
+            md_bg_color: get_color_from_hex("#d0f7d6")
+            left_action_items: [["menu", lambda x: app.set_menu_main()]]
+            Image:
+                source: 'logo2.png'
+                pos_hint: {'center_x': 0.5, 'center_y': 0}
+                pos: (((self.parent.size[0])/2)-200,self.pos[1])
+                pos_hint_x: None
+                size_hint_x: None
+                size_hint_y: None
+                height: dp(200)
+                width: dp(200)
+                allow_stretch: True
 
-        MDBottomNavigationItem:
-            id: frNav
-            name: 'fridge'
-            text: 'Fridge'
-            icon: 'fridge'
 
-            GridLayout:
-                id: frBox
-                cols: 1
-                rows_minimum: {0: (self.parent.height - dp(30)) * 0.7, 1: (self.parent.height - dp(30)) * 0.1, 2: (self.parent.height - dp(30)) * 0.01}
-                row_force_default: True
-                spacing: 40
+
+        MDBottomNavigation:
+            id: botNav
+            panel_color: get_color_from_hex("#d0f7d6")
+            selected_color_background: get_color_from_hex("#6b8a70")
+            text_color_active: get_color_from_hex("#6b8a70")
+
+            MDBottomNavigationItem:
+                id: frNav
+                name: 'fridge'
+                text: 'Fridge'
+                icon: 'fridge'
+
+                GridLayout:
+                    id: frBox
+                    cols: 1
+                    rows_minimum: {0: (self.parent.height - dp(30)) * 0.7, 1: (self.parent.height - dp(30)) * 0.1, 2: (self.parent.height - dp(30)) * 0.01}
+                    row_force_default: True
+                    spacing: 40
+                    BoxLayout:
+                        orientation: 'vertical'
+                        spacing: 40
+
+                        ScrollView:
+                            id: frSc
+                            size: (self.parent.width, self.parent.height)
+                            do_scroll_x: False
+                            do_scroll_y: True
+                            bar_width: 20
+                            BoxLayout:
+                                id: frScroll
+                                size_hint_y: None
+                                height: self.minimum_height
+                                orientation:'vertical'
+                                spacing: 40
+
+                    AnchorLayout:
+                        id: frBb
+
+
+
+            MDBottomNavigationItem:
+                id: fzNav
+                name: 'freezer'
+                text: 'Freezer'
+                icon: 'snowflake'
+                GridLayout:
+                    id: fzBox
+                    cols: 1
+                    rows_minimum: {0: (self.parent.height - dp(30)) * 0.7, 1: (self.parent.height - dp(30)) * 0.1, 2: (self.parent.height - dp(30)) * 0.01}
+                    row_force_default: True
+                    spacing: 40
+                    BoxLayout:
+                        orientation: 'vertical'
+                        spacing: 40
+
+                        ScrollView:
+                            id: fzSc
+                            size: (self.parent.width, self.parent.height)
+                            do_scroll_x: False
+                            do_scroll_y: True
+                            bar_width: 20
+                            BoxLayout:
+                                id: fzScroll
+                                size_hint_y: None
+                                height: self.minimum_height
+                                orientation:'vertical'
+                                spacing: 40
+
+                    AnchorLayout:
+                        id: fzBb
+
+
+
+            MDBottomNavigationItem:
+                id: hmNav
+                name: 'home'
+                text: 'Home'
+                icon: 'home'
                 BoxLayout:
                     orientation: 'vertical'
+
+
+
+
+
+
+            MDBottomNavigationItem:
+                id: pnNav
+                name: 'pantry'
+                text: 'Pantry'
+                icon: 'cupboard'
+                GridLayout:
+                    id: pnBox
+                    cols: 1
+
+                    rows_minimum: {0: (self.parent.height - dp(30)) * 0.7, 1: (self.parent.height - dp(30)) * 0.1, 2: (self.parent.height - dp(30)) * 0.01}
+                    row_force_default: True
                     spacing: 40
+                    BoxLayout:
+                        orientation: 'vertical'
+                        spacing: 40
 
-                    ScrollView:
-                        id: frSc
-                        size: (self.parent.width, self.parent.height)
-                        do_scroll_x: False
-                        do_scroll_y: True
-                        bar_width: 20
-                        BoxLayout:
-                            id: frScroll
-                            size_hint_y: None
-                            height: self.minimum_height
-                            orientation:'vertical'
-                            spacing: 40
+                        ScrollView:
+                            id: pnSc
+                            size: (self.parent.width, self.parent.height)
+                            do_scroll_x: False
+                            do_scroll_y: True
+                            bar_width: 20
+                            BoxLayout:
+                                id: pnScroll
+                                size_hint_y: None
+                                height: self.minimum_height
+                                orientation:'vertical'
+                                spacing: 40
 
-                AnchorLayout:
-                    id: frBb
+                    AnchorLayout:
+                        id: pnBb
 
 
 
-        MDBottomNavigationItem:
-            id: fzNav
-            name: 'freezer'
-            text: 'Freezer'
-            icon: 'snowflake'
-            GridLayout:
-                id: fzBox
-                cols: 1
-                rows_minimum: {0: (self.parent.height - dp(30)) * 0.7, 1: (self.parent.height - dp(30)) * 0.1, 2: (self.parent.height - dp(30)) * 0.01}
-                row_force_default: True
-                spacing: 40
-                BoxLayout:
-                    orientation: 'vertical'
+            MDBottomNavigationItem:
+                id: msNav
+                name: 'misc'
+                text: 'Misc.'
+                icon: 'food'
+                GridLayout:
+                    id: msBox
+                    cols: 1
+
+                    rows_minimum: {0: (self.parent.height - dp(30)) * 0.7, 1: (self.parent.height - dp(30)) * 0.1, 2: (self.parent.height - dp(30)) * 0.01}
+                    row_force_default: True
                     spacing: 40
+                    BoxLayout:
+                        orientation: 'vertical'
+                        spacing: 40
 
-                    ScrollView:
-                        id: fzSc
-                        size: (self.parent.width, self.parent.height)
-                        do_scroll_x: False
-                        do_scroll_y: True
-                        bar_width: 20
-                        BoxLayout:
-                            id: fzScroll
-                            size_hint_y: None
-                            height: self.minimum_height
-                            orientation:'vertical'
-                            spacing: 40
+                        ScrollView:
+                            id: msSc
+                            size: (self.parent.width, self.parent.height)
+                            do_scroll_x: False
+                            do_scroll_y: True
+                            bar_width: 20
+                            BoxLayout:
+                                id: msScroll
+                                size_hint_y: None
+                                height: self.minimum_height
+                                orientation:'vertical'
+                                spacing: 40
 
-                AnchorLayout:
-                    id: fzBb
-
-
-
-        MDBottomNavigationItem:
-            id: hmNav
-            name: 'home'
-            text: 'Home'
-            icon: 'home'
-
-
-
-
-
-        MDBottomNavigationItem:
-            id: pnNav
-            name: 'pantry'
-            text: 'Pantry'
-            icon: 'cupboard'
-            GridLayout:
-                id: pnBox
-                cols: 1
-
-                rows_minimum: {0: (self.parent.height - dp(30)) * 0.7, 1: (self.parent.height - dp(30)) * 0.1, 2: (self.parent.height - dp(30)) * 0.01}
-                row_force_default: True
-                spacing: 40
-                BoxLayout:
-                    orientation: 'vertical'
-                    spacing: 40
-
-                    ScrollView:
-                        id: pnSc
-                        size: (self.parent.width, self.parent.height)
-                        do_scroll_x: False
-                        do_scroll_y: True
-                        bar_width: 20
-                        BoxLayout:
-                            id: pnScroll
-                            size_hint_y: None
-                            height: self.minimum_height
-                            orientation:'vertical'
-                            spacing: 40
-
-                AnchorLayout:
-                    id: pnBb
-
-
-
-        MDBottomNavigationItem:
-            id: msNav
-            name: 'misc'
-            text: 'Misc.'
-            icon: 'food'
-            GridLayout:
-                id: msBox
-                cols: 1
-
-                rows_minimum: {0: (self.parent.height - dp(30)) * 0.7, 1: (self.parent.height - dp(30)) * 0.1, 2: (self.parent.height - dp(30)) * 0.01}
-                row_force_default: True
-                spacing: 40
-                BoxLayout:
-                    orientation: 'vertical'
-                    spacing: 40
-
-                    ScrollView:
-                        id: msSc
-                        size: (self.parent.width, self.parent.height)
-                        do_scroll_x: False
-                        do_scroll_y: True
-                        bar_width: 20
-                        BoxLayout:
-                            id: msScroll
-                            size_hint_y: None
-                            height: self.minimum_height
-                            orientation:'vertical'
-                            spacing: 40
-
-                AnchorLayout:
-                    id: msBb
+                    AnchorLayout:
+                        id: msBb
 
 
 <LoginScreen>:

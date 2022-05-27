@@ -556,6 +556,12 @@ class Main(MDApp):
                                                                            self.sm.get_screen("Main Screen"), "misc"))
         self.dialog.open()
 
+    def set_menu_main(self):
+        print("eeby deeby")
+
+    def logout(self):
+        print("ooby dooby")
+
     # sets current menu to one for choosing whether to add/remove when editing ingredient amount
     def set_menu(self):
         mItems = [{
@@ -606,6 +612,7 @@ class Main(MDApp):
         c.execute("""SELECT * FROM users WHERE logged = 1""")
         data = c.fetchall()
         if len(data) != 0:
+            print("Already logged in...")
             self.initializeFromId(data[0][0])
 
     def loadRegState(self):
@@ -657,7 +664,7 @@ class Main(MDApp):
         self.app.set_has_id(True)
         c.execute("""SELECT * FROM ingredients WHERE owner = ? AND location = 'Fridge'""", (u_id,))
         data = c.fetchall()
-        # print(data)
+        print(data)
         # for i in self.app.getFridge().getIngredient():
         #     print(i.getName())
         for d in data:
