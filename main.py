@@ -1,9 +1,12 @@
+import sys
+
 from kivy.utils import rgba
 from kivymd.app import MDApp
 from kivymd.uix.button import MDFloatingActionButton
 from kivymd.uix.label import MDLabel
 from kivymd.toast import toast
 from kivy.config import Config
+from kivy.core.text import LabelBase
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivymd.uix.card import MDCard
 from kivymd.uix.dialog import MDDialog
@@ -27,6 +30,17 @@ c = squirrel.cursor()
 
 
 # Main class for screens + custom widgets
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 
 def adapt_decimal(d):
     return str(d)
@@ -83,22 +97,22 @@ class MainScreen(Screen):
         self.ids.botNav.switch_tab("home")
         self.ids.msBb.add_widget(AddIngredientButtonMs(self.app.misc, self, "misc"))
         self.ids.msBox.add_widget(NothingThereLabel())
-        self.ids.msBox.add_widget(MDLabel(halign='center', font_name='DMSans-Regular', text='YourFridge © Edric '
+        self.ids.msBox.add_widget(MDLabel(halign='center', font_name=resource_path("DMSANS.ttf"), text='YourFridge © Edric '
                                                                                             'Antoine 2022',
                                           theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
         self.ids.pnBb.add_widget(AddIngredientButtonPn(self.app.pantry, self, "pantry"))
         self.ids.pnBox.add_widget(NothingThereLabel())
-        self.ids.pnBox.add_widget(MDLabel(halign='center', font_name='DMSans-Regular', text='YourFridge © Edric '
+        self.ids.pnBox.add_widget(MDLabel(halign='center', font_name=resource_path("DMSANS.ttf"), text='YourFridge © Edric '
                                                                                             'Antoine 2022',
                                           theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
         self.ids.fzBb.add_widget(AddIngredientButtonFz(self.app.freezer, self, "freezer"))
         self.ids.fzBox.add_widget(NothingThereLabel())
-        self.ids.fzBox.add_widget(MDLabel(halign='center', font_name='DMSans-Regular', text='YourFridge © Edric '
+        self.ids.fzBox.add_widget(MDLabel(halign='center', font_name=resource_path("DMSANS.ttf"), text='YourFridge © Edric '
                                                                                             'Antoine 2022',
                                           theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
         self.ids.frBb.add_widget(AddIngredientButtonFr(self.app.fridge, self, "fridge"))
         self.ids.frBox.add_widget(NothingThereLabel())
-        self.ids.frBox.add_widget(MDLabel(halign='center', font_name='DMSans-Regular', text='YourFridge © Edric '
+        self.ids.frBox.add_widget(MDLabel(halign='center', font_name=resource_path("DMSANS.ttf"), text='YourFridge © Edric '
                                                                                             'Antoine 2022',
                                           theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
 
@@ -135,6 +149,9 @@ class MainScreen(Screen):
         self.ids.msScroll.clear_widgets()
         for i in self.app.misc.getIngredient():
             self.ids.msScroll.add_widget(FridgeDisplay(i, self.app.getMisc(), self))
+
+    def on_enter(self):
+        self.clearify()
 
 
 # holds all screens in app
@@ -559,9 +576,6 @@ class Main(MDApp):
     def set_menu_main(self):
         print("eeby deeby")
 
-    def logout(self):
-        print("ooby dooby")
-
     # sets current menu to one for choosing whether to add/remove when editing ingredient amount
     def set_menu(self):
         mItems = [{
@@ -611,6 +625,7 @@ class Main(MDApp):
         squirrel.commit()
         c.execute("""SELECT * FROM users WHERE logged = 1""")
         data = c.fetchall()
+        print(data)
         if len(data) != 0:
             print("Already logged in...")
             self.initializeFromId(data[0][0])
@@ -632,6 +647,9 @@ class Main(MDApp):
                          SET logged = 0 
                          WHERE logged = 1""")
             c.execute("INSERT INTO users (id, logged) VALUES (?, ?)", (u_id, 1))
+            c.execute("""UPDATE users
+                         SET logged = 1
+                         WHERE id = ?""", (u_id,))
             squirrel.commit()
 
             self.app.set_has_id(True)
@@ -651,6 +669,7 @@ class Main(MDApp):
             self.app.set_id(u_id)
             self.sm.current = 'Main Screen'
             self.initializeFromId(u_id)
+            print("yeeby")
 
     def logout(self):
         c.execute("""UPDATE users
@@ -658,6 +677,7 @@ class Main(MDApp):
                      WHERE logged = 1""")
         squirrel.commit()
         self.app.wipe()
+        self.sm.current = "Login Screen"
 
     def initializeFromId(self, u_id: str):
         self.app.set_id(u_id)
@@ -696,6 +716,9 @@ class Main(MDApp):
             i = Ing.Ingredient(d[0], d[1], d[2])
             self.app.getMisc().addIngredientTwo(i)
 
+    def resource_path(self, relative_path):
+        return resource_path(relative_path)
+
     # build + run app
     def build(self):
         self.theme_cls.primary_palette = "Green"
@@ -721,6 +744,7 @@ class Main(MDApp):
 
 
 if __name__ == '__main__':
+    LabelBase.register(name="DMSans", fn_regular=resource_path("DMSANS.ttf"))
     wx = 350
     wy = 740
     Config.set('graphics', 'width', '350')

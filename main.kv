@@ -6,9 +6,9 @@
         MDToolbar:
             id: mainToolbar
             md_bg_color: get_color_from_hex("#d0f7d6")
-            left_action_items: [["menu", lambda x: app.set_menu_main()]]
+            left_action_items: [["menu", lambda x: app.logout()]]
             Image:
-                source: 'logo2.png'
+                source: app.resource_path("logo2.png")
                 pos_hint: {'center_x': 0.5, 'center_y': 0}
                 pos: (((self.parent.size[0])/2)-200,self.pos[1])
                 pos_hint_x: None
@@ -182,7 +182,7 @@
         row_force_default: True
         Image:
             id: appLogo
-            source: 'logo2.png'
+            source: app.resource_path("logo2.png")
             allow_stretch: True
 
 
@@ -197,7 +197,7 @@
         pos_hint: {'center_x': 0.5}
         mode: 'fill'
         id: idName
-        font_name: "DMSans-Regular"
+        font_name: "DMSans"
         hint_text: "Enter a unique User ID!"
         max_text_length: 20
         color_mode: 'custom'
@@ -206,15 +206,15 @@
     AnchorLayout:
         MDFillRoundFlatButton:
             pos_hint: {'center_x': 0.5}
-            text: "CREATE ACCOUNT"
-            font_name: "DMSans-Regular"
+            text: "LOGIN / CREATE ACCOUNT"
+            font_name: "DMSans"
             font_size: "15sp"
             md_bg_color: get_color_from_hex("#6b8a70")
             on_press: app.login(idName.text)
 
     MDLabel:
         halign: 'center'
-        font_name: "DMSans-Regular"
+        font_name: "DMSans"
         text: "YourFridge © Edric Antoine 2022"
         theme_text_color: "Custom"
         font_size: '10sp'
@@ -232,7 +232,7 @@
         halign: "center"
         text: "Ingredient"
         font_size: fDisplayLabel.height / 2
-        font_name: "DMSans-Regular"
+        font_name: "DMSans"
         theme_text_color: "Custom"
         text_color: get_color_from_hex("#08421e")
         on_texture: self.parent.on_text()
@@ -242,7 +242,7 @@
         id: fAmtLabel
         halign: "center"
         text: "??? unit(s)"
-        font_name: "DMSans-Regular"
+        font_name: "DMSans"
         theme_text_color: "Custom"
         text_color: get_color_from_hex("#08421e")
 
@@ -267,7 +267,7 @@
 <NothingThereLabel@MDLabel>:
 
     text: "Add an ingredient using the + button!"
-    font_name: 'Deysia Brush'
+
     halign: 'center'
     font_size: '25sp'
     pos_hint: {'center_x': 0.5}
@@ -277,7 +277,7 @@
 <InfoLabel@MDLabel>:
 
     text: "Use the checkbox to select ingredients for recipe search."
-    font_name: 'Deysia Brush'
+
     font_size: '20sp'
     halign: 'center'
     pos_hint: {'center_x': 0.5, 'center_y': 0}
