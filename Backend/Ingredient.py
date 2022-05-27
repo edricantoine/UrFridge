@@ -35,4 +35,4 @@ class Ingredient:
 
     # sets quantity of item relative to current quantity
     def setQuantRelative(self, to_add: Decimal):
-        self.quantity = Decimal(Decimal(self.quantity) + Decimal(to_add))
+        self.quantity += to_add

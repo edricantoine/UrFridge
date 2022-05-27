@@ -22,11 +22,26 @@ import os
 import json
 
 app_path = os.path.dirname(os.path.abspath(__file__))
-squirrel = sqlite3.connect(os.path.join(app_path, 'userdata.db'))
+squirrel = sqlite3.connect(os.path.join(app_path, 'userdata.db'), detect_types=sqlite3.PARSE_DECLTYPES)
 c = squirrel.cursor()
 
 
 # Main class for screens + custom widgets
+
+def adapt_decimal(d):
+    return str(d)
+
+
+def convert_decimal(s):
+    return Decimal(s.decode('ascii'))
+
+
+# Register the adapter
+sqlite3.register_adapter(Decimal, adapt_decimal)
+
+# Register the converter
+sqlite3.register_converter("decimal", convert_decimal)
+
 
 def check_connectivity():
     conn = httplib.HTTPSConnection("8.8.8.8", timeout=5)
@@ -37,18 +52,6 @@ def check_connectivity():
         return False
     finally:
         conn.close()
-
-
-def adapt_decimal(d: Decimal):
-    return str(d)
-
-
-def convert_decimal(s):
-    return Decimal(s)
-
-
-sqlite3.register_adapter(Decimal, adapt_decimal)
-sqlite3.register_converter("decimal", convert_decimal)
 
 
 class LoginScreen(Screen):
@@ -323,12 +326,13 @@ class EditIngredientContent(BoxLayout):
         if op == "Add":
             self.ferg.increaseIngredient(self.ing.getName(), Decimal(amount))
             c.execute("""UPDATE ingredients
-                                         SET amount = ?
-                                         WHERE name = ? AND owner = ?""",
+                         SET amount = ?
+                         WHERE name = ? AND owner = ?""",
                       (self.ing.getQuant(), self.ing.getName(), self.ms.app.getId()))
             squirrel.commit()
         elif op == "Remove":
             a = self.ferg.removeIngredients(self.ing.getName(), Decimal(amount))
+            print("?")
             if a == 1:
                 c.execute("""DELETE FROM ingredients
                                      WHERE name = ? AND owner = ?""", (self.ing.getName(), self.ms.app.getId()))
@@ -347,6 +351,7 @@ class EditIngredientContent(BoxLayout):
             self.ms.refreshFridge()
         elif self.type == 'freezer':
             self.ms.refreshFreezer()
+            print("!")
         elif self.type == 'pantry':
             self.ms.refreshPantry()
         elif self.type == 'misc':
@@ -492,7 +497,7 @@ class Main(MDApp):
     def showEditDialogFz(self, ingredient: Ing.Ingredient):
         self.dialog = EditIngredientDialog(type="custom",
                                            title="Edit Ingredient",
-                                           content_cls=EditIngredientContent(self.app.getFridge(),
+                                           content_cls=EditIngredientContent(self.app.getFreezer(),
                                                                              self.sm.get_screen("Main Screen"),
                                                                              ingredient, "freezer"))
         self.set_menu()
@@ -502,7 +507,7 @@ class Main(MDApp):
     def showEditDialogPn(self, ingredient: Ing.Ingredient):
         self.dialog = EditIngredientDialog(type="custom",
                                            title="Edit Ingredient",
-                                           content_cls=EditIngredientContent(self.app.getFridge(),
+                                           content_cls=EditIngredientContent(self.app.getPantry(),
                                                                              self.sm.get_screen("Main Screen"),
                                                                              ingredient, "pantry"))
         self.set_menu()
@@ -512,7 +517,7 @@ class Main(MDApp):
     def showEditDialogMs(self, ingredient: Ing.Ingredient):
         self.dialog = EditIngredientDialog(type="custom",
                                            title="Edit Ingredient",
-                                           content_cls=EditIngredientContent(self.app.getFridge(),
+                                           content_cls=EditIngredientContent(self.app.getMisc(),
                                                                              self.sm.get_screen("Main Screen"),
                                                                              ingredient, "misc"))
         self.set_menu()
@@ -600,7 +605,6 @@ class Main(MDApp):
         squirrel.commit()
         c.execute("""SELECT * FROM users WHERE logged = 1""")
         data = c.fetchall()
-        # print(data[0][0])
         if len(data) != 0:
             self.initializeFromId(data[0][0])
 
@@ -653,25 +657,34 @@ class Main(MDApp):
         self.app.set_has_id(True)
         c.execute("""SELECT * FROM ingredients WHERE owner = ? AND location = 'Fridge'""", (u_id,))
         data = c.fetchall()
-        print(data)
+        # print(data)
+        # for i in self.app.getFridge().getIngredient():
+        #     print(i.getName())
         for d in data:
+            # print("1")
             i = Ing.Ingredient(d[0], d[1], d[2])
             self.app.getFridge().addIngredientTwo(i)
 
+        # for i in self.app.getFridge().getIngredient():
+        #     print(i.getName())
+
         c.execute("""SELECT * FROM ingredients WHERE owner = ? AND location = 'Freezer'""", (u_id,))
         data = c.fetchall()
+        print(data)
         for d in data:
             i = Ing.Ingredient(d[0], d[1], d[2])
             self.app.getFreezer().addIngredientTwo(i)
 
         c.execute("""SELECT * FROM ingredients WHERE owner = ? AND location = 'Pantry'""", (u_id,))
         data = c.fetchall()
+        print(data)
         for d in data:
             i = Ing.Ingredient(d[0], d[1], d[2])
             self.app.getPantry().addIngredientTwo(i)
 
         c.execute("""SELECT * FROM ingredients WHERE owner = ? AND location = 'Misc'""", (u_id,))
         data = c.fetchall()
+        print(data)
         for d in data:
             i = Ing.Ingredient(d[0], d[1], d[2])
             self.app.getMisc().addIngredientTwo(i)
@@ -680,13 +693,14 @@ class Main(MDApp):
     def build(self):
         self.theme_cls.primary_palette = "Green"
         self.sm = ScreenManager()
-        self.sm.add_widget(MainScreen(self.app, name="Main Screen"))
-        self.sm.add_widget(LoginScreen(self.app, name="Login Screen"))
 
         if check_connectivity():
             print("Connected!")
         else:
             print("Not connected.")
+
+        self.sm.add_widget(MainScreen(self.app, name="Main Screen"))
+        self.sm.add_widget(LoginScreen(self.app, name="Login Screen"))
 
         c.execute("""SELECT * FROM users WHERE logged = 1""")
         data = c.fetchall()
@@ -695,7 +709,6 @@ class Main(MDApp):
             self.sm.current = 'Login Screen'
         else:
             self.sm.current = 'Main Screen'
-            self.initializeFromId(data[0][0])
 
         return self.sm
 

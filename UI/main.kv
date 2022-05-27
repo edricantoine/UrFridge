@@ -235,7 +235,7 @@
         icon_size: '32sp'
         halign: 'center'
 
-        on_press: self.parent.deletus_ingredient(), app.saveToJson()
+        on_press: self.parent.deletus_ingredient(),
 
     MDCheckbox:
         id: fDisplaySelector
@@ -317,7 +317,7 @@
         pos_hint: {'center_x': 0.5}
         icon: 'check'
         md_bg_color: get_color_from_hex("#6b8a70")
-        on_press: self.parent.readInput(), app.dialog_close(), app.saveToJson()
+        on_press: self.parent.readInput(), app.dialog_close()
 
 
 <AddIngredientContent@BoxLayout>:
@@ -361,7 +361,7 @@
         pos_hint: {'center_x': 0.5}
         icon: 'check'
         md_bg_color: get_color_from_hex("#6b8a70")
-        on_press: self.parent.readInput(), app.dialog_close(), app.saveToJson()
+        on_press: self.parent.readInput(), app.dialog_close()
 
 
 
