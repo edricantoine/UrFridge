@@ -2,6 +2,11 @@
 
 
 block_cipher = None
+
+# -*- mode: python ; coding: utf-8 -*-
+
+
+block_cipher = None
 from kivymd import hooks_path as kivymd_hooks_path
 
 a = Analysis(['main.py'],
@@ -18,25 +23,33 @@ a = Analysis(['main.py'],
              cipher=block_cipher,
              noarchive=False)
 
-a.datas += [('logo2.png','p1', 'Data'), ('DMSANS.ttf','p2', 'Data')]
+a.datas += [('logo2.png','.', 'Data'), ('DMSANS.ttf','.', 'Data')]
 pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 
 exe = EXE(pyz,
           a.scripts,
-          a.binaries,
-          a.zipfiles,
-          a.datas,  
           [],
+          exclude_binaries=True,
           name='main',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
-          upx_exclude=[],
-          runtime_tmpdir=None,
-          console=True,
+          console=False,
           disable_windowed_traceback=False,
           target_arch=None,
           codesign_identity=None,
           entitlements_file=None )
+coll = COLLECT(exe,
+               a.binaries,
+               a.zipfiles,
+               a.datas,
+               strip=False,
+               upx=True,
+               upx_exclude=[],
+               name='main')
+app = BUNDLE(coll,
+             name='main.app',
+             icon=None,
+             bundle_identifier=None)

@@ -70,3 +70,12 @@ class Fridge:
     # getter for name (name is unchangeable)
     def getName(self):
         return self.name
+
+    # returns a list of all selected ingredients in this fridge
+    def getSelectedIngredients(self):
+        ret = []
+        for i in self.ingredients:
+            if i.getSelected():
+                ret.append(i)
+        return ret
+

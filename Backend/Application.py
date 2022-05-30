@@ -53,6 +53,7 @@ class Application:
     def getRecipes(self):
         return self.recipes
 
+    # adds an ingredient to a fridge given an Ingredient object
     def addIngredientTwo(self, ig: Ig.Ingredient, where: str):
         name = ig.getName()
         if self.fridge.verifyIngredient(name) and self.freezer.verifyIngredient(name) and self.pantry.verifyIngredient(name) and self.misc.verifyIngredient(name):
@@ -68,6 +69,7 @@ class Application:
             return True
         return False
 
+    # adds an ingredient to fridge
     def addIngredient(self, name: str, quant: Decimal, unit: str, where: str):
         if self.fridge.verifyIngredient(name) and self.freezer.verifyIngredient(name) and self.pantry.verifyIngredient(name) and self.misc.verifyIngredient(name):
             if where == "fridge":
@@ -82,27 +84,23 @@ class Application:
             return True
         return False
 
+    # Returns a list of selected ingredients from all four fridges
+    def getSelectedIngredients(self):
+        ret = []
+        ret.extend(self.getFridge().getSelectedIngredients())
+        ret.extend(self.getFreezer().getSelectedIngredients())
+        ret.extend(self.getPantry().getSelectedIngredients())
+        ret.extend(self.getMisc().getSelectedIngredients())
+        return ret
+
     # grabs a list of num recipes using the Spoonacular API, from selected items in all four fridges
-
     def getRecipeFromSelectedIngredients(self, num: int, calories: int or None):
-        for i in self.fridge.getIngredient():
-            if i.getSelected():
-                self.grabber.addIngredient(i)
-
-        for i in self.freezer.getIngredient():
-            if i.getSelected():
-                self.grabber.addIngredient(i)
-
-        for i in self.pantry.getIngredient():
-            if i.getSelected():
-                self.grabber.addIngredient(i)
-
-        for i in self.misc.getIngredient():
-            if i.getSelected():
-                self.grabber.addIngredient(i)
+        for i in self.getSelectedIngredients():
+            self.grabber.addIngredient(i)
 
         self.recipes = self.grabber.grabRecipe(num, calories)
 
+    # it's a surprise :^)
     def getRecipeFromSelectedIngredientsTh(self, num: int, calories: int or None):
         for i in self.fridge.getIngredient():
             if i.getSelected():

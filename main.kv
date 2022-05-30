@@ -6,7 +6,7 @@
         MDToolbar:
             id: mainToolbar
             md_bg_color: get_color_from_hex("#d0f7d6")
-            left_action_items: [["menu", lambda x: app.logout()]]
+            left_action_items: [["menu", lambda x: app.set_menu_main(x)]]
             Image:
                 source: app.resource_path("logo2.png")
                 pos_hint: {'center_x': 0.5, 'center_y': 0}
@@ -99,7 +99,18 @@
                 text: 'Home'
                 icon: 'home'
                 BoxLayout:
+                    spacing: 50
                     orientation: 'vertical'
+                    MDLabel:
+                        id: welcomeLabel
+                        halign: 'center'
+                        font_name: "DMSans"
+                        text: "Hello, " + app.app.getId() + "!"
+                        theme_text_color: "Custom"
+                        font_size: '25sp'
+                        text_color: get_color_from_hex("#08421e")
+
+
 
 
 
@@ -321,7 +332,7 @@
         pos_hint: {'center_x': 0.5}
 
         text: "Select..."
-        on_release: app.menu.open()
+        on_release: app.set_menu(), app.menu.open()
 
     MDTextField:
         id: newAmount

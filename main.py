@@ -22,7 +22,6 @@ import Backend.Application as Apple
 import Backend.Fridge as Frg
 import http.client as httplib
 import os
-import json
 
 app_path = os.path.dirname(os.path.abspath(__file__))
 squirrel = sqlite3.connect(os.path.join(app_path, 'userdata.db'), detect_types=sqlite3.PARSE_DECLTYPES)
@@ -31,8 +30,8 @@ c = squirrel.cursor()
 
 # Main class for screens + custom widgets
 
+# Gets an absolute path to a resource (copied off of StackOverflow lmao)
 def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
@@ -42,10 +41,12 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
+# Makes decimals not fucky
 def adapt_decimal(d):
     return str(d)
 
 
+# see above
 def convert_decimal(s):
     return Decimal(s.decode('ascii'))
 
@@ -57,6 +58,7 @@ sqlite3.register_adapter(Decimal, adapt_decimal)
 sqlite3.register_converter("decimal", convert_decimal)
 
 
+# Returns true if connected to internet, false otherwise
 def check_connectivity():
     conn = httplib.HTTPSConnection("8.8.8.8", timeout=5)
     try:
@@ -68,6 +70,7 @@ def check_connectivity():
         conn.close()
 
 
+# Class representing the 'login' screen
 class LoginScreen(Screen):
     app = None
 
@@ -77,6 +80,7 @@ class LoginScreen(Screen):
         self.ids.loginGrid.add_widget(LoginLayout(self.app))
 
 
+# Class holding all the stuff in the login screen
 class LoginLayout(GridLayout):
     app = None
 
@@ -90,6 +94,7 @@ class LoginLayout(GridLayout):
 class MainScreen(Screen):
     app = None
 
+    # We do a minuscule amount of initializing
     def __init__(self, aap: Apple.Application, **kw):
         super().__init__(**kw)
         self.app = aap
@@ -97,24 +102,28 @@ class MainScreen(Screen):
         self.ids.botNav.switch_tab("home")
         self.ids.msBb.add_widget(AddIngredientButtonMs(self.app.misc, self, "misc"))
         self.ids.msBox.add_widget(NothingThereLabel())
-        self.ids.msBox.add_widget(MDLabel(halign='center', font_name=resource_path("DMSANS.ttf"), text='YourFridge © Edric '
-                                                                                            'Antoine 2022',
-                                          theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
+        self.ids.msBox.add_widget(
+            MDLabel(halign='center', font_name=resource_path("DMSANS.ttf"), text='YourFridge © Edric '
+                                                                                 'Antoine 2022',
+                    theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
         self.ids.pnBb.add_widget(AddIngredientButtonPn(self.app.pantry, self, "pantry"))
         self.ids.pnBox.add_widget(NothingThereLabel())
-        self.ids.pnBox.add_widget(MDLabel(halign='center', font_name=resource_path("DMSANS.ttf"), text='YourFridge © Edric '
-                                                                                            'Antoine 2022',
-                                          theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
+        self.ids.pnBox.add_widget(
+            MDLabel(halign='center', font_name=resource_path("DMSANS.ttf"), text='YourFridge © Edric '
+                                                                                 'Antoine 2022',
+                    theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
         self.ids.fzBb.add_widget(AddIngredientButtonFz(self.app.freezer, self, "freezer"))
         self.ids.fzBox.add_widget(NothingThereLabel())
-        self.ids.fzBox.add_widget(MDLabel(halign='center', font_name=resource_path("DMSANS.ttf"), text='YourFridge © Edric '
-                                                                                            'Antoine 2022',
-                                          theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
+        self.ids.fzBox.add_widget(
+            MDLabel(halign='center', font_name=resource_path("DMSANS.ttf"), text='YourFridge © Edric '
+                                                                                 'Antoine 2022',
+                    theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
         self.ids.frBb.add_widget(AddIngredientButtonFr(self.app.fridge, self, "fridge"))
         self.ids.frBox.add_widget(NothingThereLabel())
-        self.ids.frBox.add_widget(MDLabel(halign='center', font_name=resource_path("DMSANS.ttf"), text='YourFridge © Edric '
-                                                                                            'Antoine 2022',
-                                          theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
+        self.ids.frBox.add_widget(
+            MDLabel(halign='center', font_name=resource_path("DMSANS.ttf"), text='YourFridge © Edric '
+                                                                                 'Antoine 2022',
+                    theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
 
     # clears scrollpanes and refreshes ingredient UI for all four fridges
 
@@ -150,8 +159,14 @@ class MainScreen(Screen):
         for i in self.app.misc.getIngredient():
             self.ids.msScroll.add_widget(FridgeDisplay(i, self.app.getMisc(), self))
 
+    # Stuff that happens whenever we re-enter the MainScreen
     def on_enter(self):
         self.clearify()
+        self.refresh_homepage()
+
+    # Refreshes the homepage - will definitely have more stuff added to this lol
+    def refresh_homepage(self):
+        self.ids.welcomeLabel.text = "Hello, " + self.app.getId() + "!"
 
 
 # holds all screens in app
@@ -165,6 +180,7 @@ class FridgeDisplay(MDCard):
     frg = Frg.Fridge
     ms = MainScreen
 
+    # Handles dynamic resizing of text (copied from StackOverflow lmao)
     def on_text(self):
         if self.ids.fDisplayLabel.texture_size[0] >= self.ids.fDisplayLabel.width or \
                 self.ids.fDisplayLabel.texture_size[1] >= self.ids.fDisplayLabel.height:
@@ -174,6 +190,7 @@ class FridgeDisplay(MDCard):
             self.ids.fAmtLabel.font_size -= 7
 
     # handles checkbox changing state
+    # TODO: update that one part of the main screen when it is added
     def on_checkbox(self, checkbox, value):
         if value:
             self.ing.setSelected(True)
@@ -193,6 +210,7 @@ class FridgeDisplay(MDCard):
         else:
             app.showEditDialogMs(self.ing)
 
+    # We do a little trolling
     def __init__(self, ingredient: Ing.Ingredient, fridge: Frg.Fridge, ms: MainScreen, **kwargs):
         super().__init__(**kwargs)
         self.ing = ingredient
@@ -236,6 +254,7 @@ class AddIngredientButtonFr(MDFloatingActionButton):
         elif self.type == 'misc':
             self.ms.refreshMisc()
 
+    # We commit a diminutive amount of tomfoolery
     def __init__(self, f: Frg.Fridge, ms: MainScreen, type: str, **kwargs):
         super().__init__(**kwargs)
         self.fridge = f
@@ -249,6 +268,7 @@ class AddIngredientButtonFz(MDFloatingActionButton):
     ms: MainScreen
     type: str
 
+    # Self-explanatory
     def refresh(self):
         if self.type == "fridge":
             self.ms.refreshFridge()
@@ -259,6 +279,7 @@ class AddIngredientButtonFz(MDFloatingActionButton):
         elif self.type == 'misc':
             self.ms.refreshMisc()
 
+    # We participate in an atomic amount of trickery
     def __init__(self, f: Frg.Fridge, ms: MainScreen, type: str, **kwargs):
         super().__init__(**kwargs)
         self.fridge = f
@@ -272,6 +293,7 @@ class AddIngredientButtonPn(MDFloatingActionButton):
     ms: MainScreen
     type: str
 
+    # Self-explanatory
     def refresh(self):
         if self.type == "fridge":
             self.ms.refreshFridge()
@@ -282,6 +304,7 @@ class AddIngredientButtonPn(MDFloatingActionButton):
         elif self.type == 'misc':
             self.ms.refreshMisc()
 
+    # We partake in a tiny portion of suspicious activity
     def __init__(self, f: Frg.Fridge, ms: MainScreen, type: str, **kwargs):
         super().__init__(**kwargs)
         self.fridge = f
@@ -295,6 +318,7 @@ class AddIngredientButtonMs(MDFloatingActionButton):
     ms: MainScreen
     type: str
 
+    # Self-explanatory
     def refresh(self):
         if self.type == "fridge":
             self.ms.refreshFridge()
@@ -305,6 +329,7 @@ class AddIngredientButtonMs(MDFloatingActionButton):
         elif self.type == 'misc':
             self.ms.refreshMisc()
 
+    # We engage in a teensy amount of social experimentation
     def __init__(self, f: Frg.Fridge, ms: MainScreen, type: str, **kwargs):
         super().__init__(**kwargs)
         self.fridge = f
@@ -316,6 +341,7 @@ class AddIngredientButtonMs(MDFloatingActionButton):
 class AddIngredientDialog(MDDialog):
     ferg = None
 
+    # We act with a goal of achieving insignificant amounts of wacky antics
     def __init__(self, schlapp: Frg.Fridge, **kwargs):
         super().__init__(**kwargs)
         self.ferg = schlapp
@@ -340,29 +366,30 @@ class EditIngredientContent(BoxLayout):
         if amount == "":
             toast("Amount field was invalid.")
 
-        if op == "Add":
-            self.ferg.increaseIngredient(self.ing.getName(), Decimal(amount))
-            c.execute("""UPDATE ingredients
-                         SET amount = ?
-                         WHERE name = ? AND owner = ?""",
-                      (self.ing.getQuant(), self.ing.getName(), self.ms.app.getId()))
-            squirrel.commit()
-        elif op == "Remove":
-            a = self.ferg.removeIngredients(self.ing.getName(), Decimal(amount))
-            print("?")
-            if a == 1:
-                c.execute("""DELETE FROM ingredients
-                                     WHERE name = ? AND owner = ?""", (self.ing.getName(), self.ms.app.getId()))
-                squirrel.commit()
-            elif a == 0:
+        else:
+            if op == "Add":
+                self.ferg.increaseIngredient(self.ing.getName(), Decimal(amount))
                 c.execute("""UPDATE ingredients
                              SET amount = ?
                              WHERE name = ? AND owner = ?""",
                           (self.ing.getQuant(), self.ing.getName(), self.ms.app.getId()))
                 squirrel.commit()
+            elif op == "Remove":
+                a = self.ferg.removeIngredients(self.ing.getName(), Decimal(amount))
+                print("?")
+                if a == 1:
+                    c.execute("""DELETE FROM ingredients
+                                         WHERE name = ? AND owner = ?""", (self.ing.getName(), self.ms.app.getId()))
+                    squirrel.commit()
+                elif a == 0:
+                    c.execute("""UPDATE ingredients
+                                 SET amount = ?
+                                 WHERE name = ? AND owner = ?""",
+                              (self.ing.getQuant(), self.ing.getName(), self.ms.app.getId()))
+                    squirrel.commit()
 
-        else:
-            toast("Invalid command issued.")
+            else:
+                toast("Invalid command issued.")
 
         if self.type == "fridge":
             self.ms.refreshFridge()
@@ -375,6 +402,7 @@ class EditIngredientContent(BoxLayout):
             self.ms.refreshMisc()
         self.ids.newAmount.text = ""
 
+    # We undertake a miniature amount of capers
     def __init__(self, ferg: Frg.Fridge, mss: MainScreen, ing: Ing.Ingredient, typ: str, **kwargs):
         super().__init__(**kwargs)
         self.ferg = ferg
@@ -389,6 +417,7 @@ class AddIngredientContent(BoxLayout):
     ms: MainScreen
     type: str
 
+    # We implement a trifling amount of buffoonery
     def __init__(self, ferg: Apple.Application, mss: MainScreen, typ: str, **kwargs):
         super().__init__(**kwargs)
         self.aap = ferg
@@ -457,8 +486,10 @@ class Main(MDApp):
     dialog = None
     sm = None
     menu = None
+    menu_t = None
     j_store = None
 
+    # Saves current ingredients to a JsonStore (currently not being used, but here just in case)
     def saveToJson(self):
         self.j_store.clear()
 
@@ -478,6 +509,7 @@ class Main(MDApp):
             self.j_store.put(ing.getName(), name=ing.getName(), quant=str(ing.getQuant()), unit=ing.getUnit(),
                              sel=ing.getSelected(), place="Misc")
 
+    # Loads current ingredients from a JsonStore (currently not being used, but here just in case)
     def loadFromJson(self):
 
         for j in self.j_store:
@@ -573,37 +605,34 @@ class Main(MDApp):
                                                                            self.sm.get_screen("Main Screen"), "misc"))
         self.dialog.open()
 
-    def set_menu_main(self):
-        print("eeby deeby")
+    # Sets up 'Options/Logout' menu
+
+    def set_menu_main(self, button):
+        self.menu_t.caller = button
+        self.menu_t.open()
 
     # sets current menu to one for choosing whether to add/remove when editing ingredient amount
     def set_menu(self):
-        mItems = [{
-            'viewclass': 'OneLineListItem',
-            'text': "Add",
-            'on_release': lambda x='Add': self.set_item(x)
-        },
-            {
-                'viewclass': 'OneLineListItem',
-                'text': "Remove",
-                'on_release': lambda x='Remove': self.set_item(x)
-            }]
-        self.menu = MDDropdownMenu(caller=self.dialog.content_cls.ids.ddItem,
-                                   items=mItems, width_mult=2)
-        self.menu.bind()
+        self.menu.caller = self.dialog.content_cls.ids.ddItem
 
     # sets item for dropdown menu
     def set_item(self, arg):
         self.dialog.content_cls.ids.ddItem.set_item(arg)
         self.menu.dismiss()
 
+    # Ok this one's actually important so I'll comment it
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.mItems = None
+        self.mItems_t = None
+        self.menu_t = None
         self.app = Apple.Application()
         self.app.wipe()
+        # Here is where I would load from json if I were to use it
         self.j_store = JsonStore('ingredience.json')
         # self.loadFromJson()
         # self.loadRegState()
+        # Creates db tables in sqlite (if they dont exist ofc)
         command = """
         CREATE TABLE IF NOT EXISTS users(
         id varchar(25) NOT NULL,
@@ -623,6 +652,7 @@ class Main(MDApp):
         """
         c.execute(command)
         squirrel.commit()
+        # Checks for a logged-in user, if it is found, initializes app to that user's saved state
         c.execute("""SELECT * FROM users WHERE logged = 1""")
         data = c.fetchall()
         print(data)
@@ -630,6 +660,7 @@ class Main(MDApp):
             print("Already logged in...")
             self.initializeFromId(data[0][0])
 
+    # ignore this lol
     def loadRegState(self):
         if "REGISTERED" in self.j_store:
             self.app.set_has_id(True)
@@ -637,7 +668,9 @@ class Main(MDApp):
         else:
             self.app.set_has_id(False)
 
+    # Is called when login button is pressed.
     def login(self, u_id: str):
+        # Finds list of users with u_id matching id
         c.execute("""SELECT * FROM users WHERE id = ?""", (u_id,))
         data = c.fetchall()
         # print(data)
@@ -671,6 +704,7 @@ class Main(MDApp):
             self.initializeFromId(u_id)
             print("yeeby")
 
+    # logs user out of app, wipes app state, dismisses menu
     def logout(self):
         c.execute("""UPDATE users
                      SET logged = 0
@@ -678,7 +712,9 @@ class Main(MDApp):
         squirrel.commit()
         self.app.wipe()
         self.sm.current = "Login Screen"
+        self.menu_t.dismiss()
 
+    # loads ingredients matching the user's id from sqlite db into their proper places
     def initializeFromId(self, u_id: str):
         self.app.set_id(u_id)
         self.app.set_has_id(True)
@@ -716,7 +752,9 @@ class Main(MDApp):
             i = Ing.Ingredient(d[0], d[1], d[2])
             self.app.getMisc().addIngredientTwo(i)
 
+    # calls static resource path function
     def resource_path(self, relative_path):
+        print(self.app.getId())
         return resource_path(relative_path)
 
     # build + run app
@@ -731,6 +769,37 @@ class Main(MDApp):
 
         self.sm.add_widget(MainScreen(self.app, name="Main Screen"))
         self.sm.add_widget(LoginScreen(self.app, name="Login Screen"))
+
+        self.dialog = EditIngredientDialog(type="custom",
+                                           title="Edit Ingredient",
+                                           content_cls=EditIngredientContent(self.app.getFridge(),
+                                                                             self.sm.get_screen("Main Screen"),
+                                                                             Ing.Ingredient(".", Decimal(0), "."),
+                                                                             "fridge"))
+        self.mItems = [{
+            'viewclass': 'OneLineListItem',
+            'text': "Add",
+            'on_release': lambda x='Add': self.set_item(x)
+        },
+            {
+                'viewclass': 'OneLineListItem',
+                'text': "Remove",
+                'on_release': lambda x='Remove': self.set_item(x)
+            }]
+        self.menu = MDDropdownMenu(items=self.mItems, width_mult=2)
+
+        self.mItems_t = [{
+            'viewclass': 'OneLineListItem',
+            'text': 'Options',
+            'on_release': lambda x='Options': print("Eeby Deeby")
+        },
+            {
+                'viewclass': 'OneLineListItem',
+                'text': 'Logout',
+                'on_release': lambda x='Logout': self.logout()
+            }]
+        self.menu_t = MDDropdownMenu(caller=self.sm.get_screen("Main Screen").ids.mainToolbar, items=self.mItems_t,
+                                     width_mult=2)
 
         c.execute("""SELECT * FROM users WHERE logged = 1""")
         data = c.fetchall()
