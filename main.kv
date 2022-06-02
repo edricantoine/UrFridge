@@ -98,9 +98,11 @@
                 name: 'home'
                 text: 'Home'
                 icon: 'home'
-                BoxLayout:
-                    spacing: 50
-                    orientation: 'vertical'
+                GridLayout:
+                    id: hmGrid
+                    cols: 1
+                    rows_minimum: {0: (self.parent.height) * 0.05, 1: (self.parent.height) * 0.2, 2: (self.parent.height) * 0.4, 3: (self.parent.height) * 0.1, 4: (self.parent.height) * 0.1}
+                    row_force_default: True
                     MDLabel:
                         id: welcomeLabel
                         halign: 'center'
@@ -108,14 +110,80 @@
                         text: "Hello, " + app.app.getId() + "!"
                         theme_text_color: "Custom"
                         font_size: '25sp'
+                        size: self.texture_size
                         text_color: get_color_from_hex("#08421e")
 
+                    MDLabel:
+                        id: wLabel2
+                        halign: 'center'
+                        font_name: "DMSans"
+                        text: "Here are your selected ingredients:"
+                        theme_text_color: "Custom"
+                        font_size: '15sp'
+                        size: self.texture_size
+                        text_color: get_color_from_hex("#08421e")
 
+                    ScrollView:
+                        id: selectedScroll
+                        size: (self.parent.width, self.parent.height)
+                        do_scroll_x: False
+                        do_scroll_y: True
+                        bar_width: 20
 
+                        GridLayout:
+                            id: selectedGrid
+                            size_hint_y: None
+                            spacing: 60
+                            cols: 2
+                            height: self.minimum_height
+                            MDLabel:
+                                halign: 'center'
+                                text: "TEST1"
+                                font_size: '15sp'
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex("#08421e")
+                                size: self.texture_size
+                            MDLabel:
+                                halign: 'center'
+                                text: "TEST2"
+                                font_size: '15sp'
+                                size: self.texture_size
+                            MDLabel:
+                                halign: 'center'
+                                text: "TEST1"
+                                font_size: '15sp'
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex("#08421e")
+                                size: self.texture_size
+                            MDLabel:
+                                halign: 'center'
+                                text: "TEST2"
+                                font_size: '15sp'
+                                size: self.texture_size
+                            MDLabel:
+                                halign: 'center'
+                                text: "TEST1"
+                                font_size: '15sp'
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex("#08421e")
+                                size: self.texture_size
+                            MDLabel:
+                                halign: 'center'
+                                text: "TEST2"
+                                font_size: '15sp'
+                                size: self.texture_size
 
+                    MDLabel:
+                        halign: 'center'
+                        text: "TEST 3"
+                        font_size: '15sp'
+                        size: self.texture_size
 
-
-
+                    MDLabel:
+                        halign: 'center'
+                        text: "TEST 4"
+                        font_size: '15sp'
+                        size: self.texture_size
 
             MDBottomNavigationItem:
                 id: pnNav
