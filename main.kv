@@ -101,7 +101,7 @@
                 GridLayout:
                     id: hmGrid
                     cols: 1
-                    rows_minimum: {0: (self.parent.height) * 0.05, 1: (self.parent.height) * 0.2, 2: (self.parent.height) * 0.4, 3: (self.parent.height) * 0.1, 4: (self.parent.height) * 0.1}
+                    rows_minimum: {0: (self.parent.height) * 0.05, 1: (self.parent.height) * 0.2, 2: (self.parent.height) * 0.4, 3: (self.parent.height) * 0.3}
                     row_force_default: True
                     MDLabel:
                         id: welcomeLabel
@@ -111,6 +111,7 @@
                         theme_text_color: "Custom"
                         font_size: '25sp'
                         size: self.texture_size
+
                         text_color: get_color_from_hex("#08421e")
 
                     MDLabel:
@@ -129,61 +130,49 @@
                         do_scroll_x: False
                         do_scroll_y: True
                         bar_width: 20
-
+                        canvas.before:
+                            Color:
+                                rgba: get_color_from_hex("#ebebeb")
+                            Rectangle:
+                                size: self.size
+                                pos: self.pos
                         GridLayout:
                             id: selectedGrid
                             size_hint_y: None
                             spacing: 60
                             cols: 2
                             height: self.minimum_height
-                            MDLabel:
-                                halign: 'center'
-                                text: "TEST1"
-                                font_size: '15sp'
-                                theme_text_color: "Custom"
-                                text_color: get_color_from_hex("#08421e")
-                                size: self.texture_size
-                            MDLabel:
-                                halign: 'center'
-                                text: "TEST2"
-                                font_size: '15sp'
-                                size: self.texture_size
-                            MDLabel:
-                                halign: 'center'
-                                text: "TEST1"
-                                font_size: '15sp'
-                                theme_text_color: "Custom"
-                                text_color: get_color_from_hex("#08421e")
-                                size: self.texture_size
-                            MDLabel:
-                                halign: 'center'
-                                text: "TEST2"
-                                font_size: '15sp'
-                                size: self.texture_size
-                            MDLabel:
-                                halign: 'center'
-                                text: "TEST1"
-                                font_size: '15sp'
-                                theme_text_color: "Custom"
-                                text_color: get_color_from_hex("#08421e")
-                                size: self.texture_size
-                            MDLabel:
-                                halign: 'center'
-                                text: "TEST2"
-                                font_size: '15sp'
-                                size: self.texture_size
 
-                    MDLabel:
-                        halign: 'center'
-                        text: "TEST 3"
-                        font_size: '15sp'
-                        size: self.texture_size
 
-                    MDLabel:
-                        halign: 'center'
-                        text: "TEST 4"
-                        font_size: '15sp'
-                        size: self.texture_size
+                    GridLayout:
+                        id: extrasGrid
+                        cols: 2
+                        spacing: 40
+                        rows_minimum: {0: (self.height) * 0.4, 1: (self.height) * 0.2}
+                        row_force_default: True
+                        AnchorLayout:
+                            MDRectangleFlatButton:
+                                text: "Get Recipe"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex("#08421e")
+                                line_color: get_color_from_hex("#08421e")
+                                on_press: app.showGetRecipeDialog()
+                        AnchorLayout:
+                            MDRectangleFlatButton:
+                                text: "Save to Lists"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex("#08421e")
+                                line_color: get_color_from_hex("#08421e")
+                                on_press: app.toasty("Coming soon...")
+                        AnchorLayout:
+                            MDRectangleFlatButton:
+                                text: "My Lists"
+                                theme_text_color: "Custom"
+                                text_color: get_color_from_hex("#08421e")
+                                line_color: get_color_from_hex("#08421e")
+                                on_press: app.toasty("Coming soon...")
+
+
 
             MDBottomNavigationItem:
                 id: pnNav
@@ -250,6 +239,15 @@
 
                     AnchorLayout:
                         id: msBb
+
+
+<SpecialLabel@MDLabel>:
+    halign: 'center'
+    font_size: '15sp'
+    theme_text_color: "Custom"
+    text_color: get_color_from_hex("#08421e")
+    size: self.texture_size
+    size_hint_y: None
 
 
 <LoginScreen>:
@@ -415,6 +413,31 @@
 
     MDFloatingActionButton:
         id: editButton
+        pos_hint: {'center_x': 0.5}
+        icon: 'check'
+        md_bg_color: get_color_from_hex("#6b8a70")
+        on_press: self.parent.readInput(), app.dialog_close()
+
+
+<GetRecipeContent@BoxLayout>:
+    orientation: 'vertical'
+    spacing: '12dp'
+    height: '150dp'
+    size_hint_y: None
+
+    MDTextField:
+        id: numRecipes
+        hint_text: "Number of recipes to grab"
+        input_filter: 'int'
+        max_text_length: 1
+        helper_text: "This field is required"
+        helper_text_mode: 'on_focus'
+        color_mode: 'custom'
+        line_color_focus: get_color_from_hex("#6b8a70")
+
+
+    MDFloatingActionButton:
+        id: grabButton
         pos_hint: {'center_x': 0.5}
         icon: 'check'
         md_bg_color: get_color_from_hex("#6b8a70")

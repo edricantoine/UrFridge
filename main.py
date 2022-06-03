@@ -167,10 +167,18 @@ class MainScreen(Screen):
     # Refreshes the homepage - will definitely have more stuff added to this lol
     def refresh_homepage(self):
         self.ids.welcomeLabel.text = "Hello, " + self.app.getId() + "!"
+        self.ids.selectedGrid.clear_widgets()
+        for i in self.app.getSelectedIngredients():
+            self.ids.selectedGrid.add_widget(SpecialLabel(text=i.getName()))
+        print("Homepage refreshed.")
 
 
 # holds all screens in app
 class WindowManager(ScreenManager):
+    pass
+
+
+class SpecialLabel(MDLabel):
     pass
 
 
@@ -194,9 +202,12 @@ class FridgeDisplay(MDCard):
     def on_checkbox(self, checkbox, value):
         if value:
             self.ing.setSelected(True)
+            self.ms.ids.selectedGrid.add_widget(SpecialLabel(text=self.ing.getName()))
             print("Ingredient " + self.ing.getName() + " is now selected")
         else:
             self.ing.setSelected(False)
+            self.ms.refresh_homepage()
+            # self.ms.ids.selectedGrid.remove_widget(SpecialLabel(text=self.ing.getName()))
             print("Ingredient " + self.ing.getName() + " is now deselected")
 
     # calls the appropriate editing dialog
@@ -352,6 +363,10 @@ class EditIngredientDialog(MDDialog):
     pass
 
 
+class GetRecipeDialog(MDDialog):
+    pass
+
+
 # The content of the EditIngredientDialog
 class EditIngredientContent(BoxLayout):
     ferg: Frg.Fridge
@@ -409,6 +424,28 @@ class EditIngredientContent(BoxLayout):
         self.ms = mss
         self.ing = ing
         self.type = typ
+
+
+class GetRecipeContent(BoxLayout):
+    aap = Apple.Application
+    ms: MainScreen
+
+    def __init__(self, aap: Apple.Application, mss: MainScreen, **kwargs):
+        super().__init__(**kwargs)
+        self.aap = aap
+        self.ms = mss
+
+    def readInput(self):
+        amt = self.ids.numRecipes.text
+        if amt == "" or len(amt) >= 2:
+            toast("Invalid input.")
+        else:
+            selected = self.aap.getSelectedIngredients()
+            numSelected = len(selected)
+            if numSelected == 0:
+                toast("Select some ingredients first!")
+            else:
+                toast("Coming soon...")
 
 
 # The content of the AddIngredientDialog
@@ -488,6 +525,10 @@ class Main(MDApp):
     menu = None
     menu_t = None
     j_store = None
+
+    # here for use in kv files
+    def toasty(self, msg):
+        toast(msg)
 
     # Saves current ingredients to a JsonStore (currently not being used, but here just in case)
     def saveToJson(self):
@@ -603,6 +644,12 @@ class Main(MDApp):
                                           title="New Ingredient",
                                           content_cls=AddIngredientContent(self.app,
                                                                            self.sm.get_screen("Main Screen"), "misc"))
+        self.dialog.open()
+
+    def showGetRecipeDialog(self):
+        self.dialog = GetRecipeDialog(type="custom",
+                                      title="Get Recipes",
+                                      content_cls=GetRecipeContent(self.app, self.sm.get_screen("Main Screen")))
         self.dialog.open()
 
     # Sets up 'Options/Logout' menu
@@ -791,7 +838,7 @@ class Main(MDApp):
         self.mItems_t = [{
             'viewclass': 'OneLineListItem',
             'text': 'Options',
-            'on_release': lambda x='Options': print("Eeby Deeby")
+            'on_release': lambda x='Options': toast("Options coming soon...")
         },
             {
                 'viewclass': 'OneLineListItem',
