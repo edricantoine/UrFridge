@@ -243,59 +243,13 @@
 
 <SpecialLabel@MDLabel>:
     halign: 'center'
+    font_name: 'DMSans'
     font_size: '15sp'
     theme_text_color: "Custom"
     text_color: get_color_from_hex("#08421e")
     size: self.texture_size
     size_hint_y: None
 
-
-<LoginScreen>:
-    id: loginScreen
-    GridLayout:
-        id: loginGrid
-        cols: 1
-        rows_minimum: {0: (self.height) * 0.5, 1: (self.height) * 0.6}
-        row_force_default: True
-        Image:
-            id: appLogo
-            source: app.resource_path("logo2.png")
-            allow_stretch: True
-
-
-
-
-<LoginLayout@GridLayout>:
-    cols: 1
-    spacing: 40
-    rows_minimum: {0: (self.height) * 0.25, 1: (self.height) * 0.3}
-    row_force_default: True
-    MDTextField:
-        pos_hint: {'center_x': 0.5}
-        mode: 'fill'
-        id: idName
-        font_name: "DMSans"
-        hint_text: "Enter a unique User ID!"
-        max_text_length: 20
-        color_mode: 'custom'
-        line_color_focus: get_color_from_hex("#6b8a70")
-
-    AnchorLayout:
-        MDFillRoundFlatButton:
-            pos_hint: {'center_x': 0.5}
-            text: "LOGIN / CREATE ACCOUNT"
-            font_name: "DMSans"
-            font_size: "15sp"
-            md_bg_color: get_color_from_hex("#6b8a70")
-            on_press: app.login(idName.text)
-
-    MDLabel:
-        halign: 'center'
-        font_name: "DMSans"
-        text: "YourFridge © Edric Antoine 2022"
-        theme_text_color: "Custom"
-        font_size: '10sp'
-        text_color: get_color_from_hex("#bec5d1")
 
 
 
@@ -486,6 +440,156 @@
         icon: 'check'
         md_bg_color: get_color_from_hex("#6b8a70")
         on_press: self.parent.readInput(), app.dialog_close()
+
+
+
+
+<LoginScreen>:
+    id: loginScreen
+    GridLayout:
+        id: loginGrid
+        cols: 1
+        rows_minimum: {0: (self.height) * 0.5, 1: (self.height) * 0.6}
+        row_force_default: True
+        Image:
+            id: appLogo
+            source: app.resource_path("logo2.png")
+            allow_stretch: True
+
+
+
+
+
+
+<LoginLayout@GridLayout>:
+    cols: 1
+    spacing: 40
+    rows_minimum: {0: (self.height) * 0.25, 1: (self.height) * 0.3}
+    row_force_default: True
+    MDTextField:
+        pos_hint: {'center_x': 0.5}
+        mode: 'fill'
+        id: idName
+        font_name: "DMSans"
+        hint_text: "Enter a unique User ID!"
+        max_text_length: 20
+        color_mode: 'custom'
+        line_color_focus: get_color_from_hex("#6b8a70")
+
+    AnchorLayout:
+        MDFillRoundFlatButton:
+            pos_hint: {'center_x': 0.5}
+            text: "LOGIN / CREATE ACCOUNT"
+            font_name: "DMSans"
+            font_size: "15sp"
+            md_bg_color: get_color_from_hex("#6b8a70")
+            on_press: app.login(idName.text)
+
+    MDLabel:
+        halign: 'center'
+        font_name: "DMSans"
+        text: "YourFridge © Edric Antoine 2022"
+        theme_text_color: "Custom"
+        font_size: '10sp'
+        text_color: get_color_from_hex("#bec5d1")
+
+
+<LoadingScreen>:
+    BoxLayout:
+        id: loadingBox
+        orientation: 'vertical'
+        Image:
+            id: loadingIcon
+            source: 'ZZ5H.gif'
+            pos: self.pos
+            size_hint: None, None
+            size: root.size
+            allow_stretch: True
+            keep_ratio: True
+            anim_loop: 0
+
+        MDLabel:
+            text: 'Please wait, we are fetching your recipe(s)...'
+            halign: 'center'
+            font_size: '25sp'
+            font_name: 'DMSans'
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex("#08421e")
+            size: self.texture_size
+            size_hint_y: None
+
+
+<RecipeViewScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        MDToolbar:
+            id: rviewToolbar
+            md_bg_color: get_color_from_hex("#d0f7d6")
+            left_action_items: [["arrow-left", lambda x: app.switchToMain()]]
+            Image:
+                source: app.resource_path("logo2.png")
+                pos_hint: {'center_x': 0.5, 'center_y': 0}
+                pos: (((self.parent.size[0])/2)-200,self.pos[1])
+                pos_hint_x: None
+                size_hint_x: None
+                size_hint_y: None
+                height: dp(200)
+                width: dp(200)
+                allow_stretch: True
+        MDBottomNavigation:
+            id: viewNav
+            panel_color: get_color_from_hex("#d0f7d6")
+            selected_color_background: get_color_from_hex("#6b8a70")
+            text_color_active: get_color_from_hex("#6b8a70")
+
+            MDBottomNavigationItem:
+                id: recNav
+                name: 'view'
+                text: 'View Recipes'
+                icon: 'menu'
+
+                GridLayout:
+                    id: viewBox
+                    cols: 1
+                    rows_minimum: {0: (self.parent.height - dp(30)) * 0.2, 1: (self.parent.height - dp(30)) * 0.9}
+                    row_force_default: True
+                    spacing: 40
+                    AnchorLayout:
+                        id: viewBb
+                        MDDropDownItem:
+                            id: sortItem
+                            pos_hint: {'center_x': 0.5}
+                            text: "Sort by..."
+                            on_release: app.set_menu_sort()
+                    BoxLayout:
+                        orientation: 'vertical'
+                        spacing: 60
+
+                        ScrollView:
+                            id: viewSc
+                            size: (self.parent.width, self.parent.height)
+                            do_scroll_x: False
+                            do_scroll_y: True
+                            bar_width: 20
+                            BoxLayout:
+                                id: viewScroll
+                                size_hint_y: None
+                                height: self.minimum_height
+                                orientation:'vertical'
+                                spacing: 40
+                                MDLabel:
+                                    text: 'TO BE REPLACED WITH RecipeDisplay'
+                                    halign: 'center'
+                                    font_size: '25sp'
+                                    font_name: 'DMSans'
+                                    theme_text_color: "Custom"
+                                    text_color: get_color_from_hex("#08421e")
+                                    size: self.texture_size
+                                    size_hint_y: None
+
+
+
+
 
 
 

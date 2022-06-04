@@ -89,6 +89,10 @@ class LoginLayout(GridLayout):
         self.app = apple
 
 
+class LoadingScreen(Screen):
+    pass
+
+
 # The main screen, with the bottom navigation panels + their contents
 
 class MainScreen(Screen):
@@ -182,6 +186,18 @@ class SpecialLabel(MDLabel):
     pass
 
 
+class RecipeViewScreen(Screen):
+    recipes = None
+
+    def __init__(self, **kw):
+        super().__init__(**kw)
+        self.recipes = []
+
+    def initializeFromRecipesList(self, r_list):
+        self.recipes = r_list
+        # TODO: refresh this screen based on the list given
+
+
 # the MDCard that holds ingredient name + buttons for editing ingredient
 class FridgeDisplay(MDCard):
     ing: Ing.Ingredient
@@ -229,9 +245,12 @@ class FridgeDisplay(MDCard):
         self.ms = ms
         self.ids.fDisplayLabel.text = ingredient.getName()
         self.ids.fAmtLabel.text = str(ingredient.getQuant()) + " " + ingredient.getUnit()
+        if self.ing.getSelected():
+            self.ids.fDisplaySelector.active = True
 
     # deletes an ingredient
     def deletus_ingredient(self):
+
         self.frg.removeIngredients(self.ing.getName(), self.ing.getQuant())
         if self.frg.getName() == "Fridge":
             self.ms.ids.frScroll.remove_widget(self)
@@ -241,6 +260,8 @@ class FridgeDisplay(MDCard):
             self.ms.ids.pnScroll.remove_widget(self)
         else:
             self.ms.ids.msScroll.remove_widget(self)
+
+        self.ms.refresh_homepage()
 
         c.execute("""DELETE FROM ingredients
                      WHERE name = ? AND owner = ?""", (self.ing.getName(), self.ms.app.getId()))
@@ -415,6 +436,8 @@ class EditIngredientContent(BoxLayout):
             self.ms.refreshPantry()
         elif self.type == 'misc':
             self.ms.refreshMisc()
+
+        self.ms.refresh_homepage()
         self.ids.newAmount.text = ""
 
     # We undertake a miniature amount of capers
@@ -445,7 +468,7 @@ class GetRecipeContent(BoxLayout):
             if numSelected == 0:
                 toast("Select some ingredients first!")
             else:
-                toast("Coming soon...")
+                app.sm.current = 'Recipe List'
 
 
 # The content of the AddIngredientDialog
@@ -524,6 +547,7 @@ class Main(MDApp):
     sm = None
     menu = None
     menu_t = None
+    menu_sort = None
     j_store = None
 
     # here for use in kv files
@@ -662,14 +686,29 @@ class Main(MDApp):
     def set_menu(self):
         self.menu.caller = self.dialog.content_cls.ids.ddItem
 
+    def set_menu_sort(self):
+        self.menu_sort.open()
+
     # sets item for dropdown menu
     def set_item(self, arg):
         self.dialog.content_cls.ids.ddItem.set_item(arg)
         self.menu.dismiss()
 
+    def set_item_sort(self, arg):
+        self.sm.get_screen('Recipe List').ids.sortItem.set_item(arg)
+        toast("Coming soon...")
+        self.menu_sort.dismiss()
+
+    def switchToMain(self):
+        self.app.deselectAll()
+        self.sm.get_screen('Main Screen').refresh_homepage()
+        self.sm.current = 'Main Screen'
+        self.sm.get_screen('Recipe List').ids.sortItem.set_item("Sort by...")
+
     # Ok this one's actually important so I'll comment it
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.mItems_sort = None
         self.mItems = None
         self.mItems_t = None
         self.menu_t = None
@@ -816,6 +855,8 @@ class Main(MDApp):
 
         self.sm.add_widget(MainScreen(self.app, name="Main Screen"))
         self.sm.add_widget(LoginScreen(self.app, name="Login Screen"))
+        self.sm.add_widget(LoadingScreen(name="Loading Screen"))
+        self.sm.add_widget(RecipeViewScreen(name="Recipe List"))
 
         self.dialog = EditIngredientDialog(type="custom",
                                            title="Edit Ingredient",
@@ -847,6 +888,25 @@ class Main(MDApp):
             }]
         self.menu_t = MDDropdownMenu(caller=self.sm.get_screen("Main Screen").ids.mainToolbar, items=self.mItems_t,
                                      width_mult=2)
+
+        self.mItems_sort = [{
+            'viewclass': 'OneLineListItem',
+            'text': 'Name',
+            'on_release': lambda x='Name': self.set_item_sort(x)
+        },
+            {
+                'viewclass': 'OneLineListItem',
+                'text': 'Calories',
+                'on_release': lambda x='Calories': self.set_item_sort(x)
+            },
+            {
+                'viewclass': 'OneLineListItem',
+                'text': '# Missing Ingredients',
+                'on_release': lambda x='# Missing Ingredients': self.set_item_sort(x)
+            }]
+
+        self.menu_sort = MDDropdownMenu(caller=self.sm.get_screen("Recipe List").ids.sortItem, items=self.mItems_sort,
+                                        width_mult=2)
 
         c.execute("""SELECT * FROM users WHERE logged = 1""")
         data = c.fetchall()

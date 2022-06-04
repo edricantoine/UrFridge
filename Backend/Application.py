@@ -56,7 +56,8 @@ class Application:
     # adds an ingredient to a fridge given an Ingredient object
     def addIngredientTwo(self, ig: Ig.Ingredient, where: str):
         name = ig.getName()
-        if self.fridge.verifyIngredient(name) and self.freezer.verifyIngredient(name) and self.pantry.verifyIngredient(name) and self.misc.verifyIngredient(name):
+        if self.fridge.verifyIngredient(name) and self.freezer.verifyIngredient(name) and self.pantry.verifyIngredient(
+                name) and self.misc.verifyIngredient(name):
             if where == "fridge":
                 self.fridge.addIngredientTwo(ig)
             elif where == "freezer":
@@ -71,7 +72,8 @@ class Application:
 
     # adds an ingredient to fridge
     def addIngredient(self, name: str, quant: Decimal, unit: str, where: str):
-        if self.fridge.verifyIngredient(name) and self.freezer.verifyIngredient(name) and self.pantry.verifyIngredient(name) and self.misc.verifyIngredient(name):
+        if self.fridge.verifyIngredient(name) and self.freezer.verifyIngredient(name) and self.pantry.verifyIngredient(
+                name) and self.misc.verifyIngredient(name):
             if where == "fridge":
                 self.fridge.addIngredient(name, quant, unit)
             elif where == "freezer":
@@ -92,6 +94,10 @@ class Application:
         ret.extend(self.getPantry().getSelectedIngredients())
         ret.extend(self.getMisc().getSelectedIngredients())
         return ret
+
+    def deselectAll(self):
+        for i in self.getSelectedIngredients():
+            i.setSelected(False)
 
     # grabs a list of num recipes using the Spoonacular API, from selected items in all four fridges
     def getRecipeFromSelectedIngredients(self, num: int, calories: int or None):
