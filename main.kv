@@ -577,19 +577,16 @@
                                 height: self.minimum_height
                                 orientation:'vertical'
                                 spacing: 40
-                                MDLabel:
-                                    text: 'TO BE REPLACED WITH RecipeDisplay'
-                                    halign: 'center'
-                                    font_size: '25sp'
-                                    font_name: 'DMSans'
-                                    theme_text_color: "Custom"
-                                    text_color: get_color_from_hex("#08421e")
-                                    size: self.texture_size
-                                    size_hint_y: None
 
 
+<RecipeDisplay@MDCardSwipe>:
+    orientation: 'vertical'
+    spacing: 60
+    size_hint_y: None
+    height: recFront.minimum_height
 
-
+    MDCardSwipeFrontBox:
+        id: recFront
 
 
 

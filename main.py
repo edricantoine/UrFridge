@@ -4,11 +4,13 @@ from kivy.utils import rgba
 from kivymd.app import MDApp
 from kivymd.uix.button import MDFloatingActionButton
 from kivymd.uix.label import MDLabel
+from kivymd.uix.list import ThreeLineListItem
 from kivymd.toast import toast
 from kivy.config import Config
 from kivy.core.text import LabelBase
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivymd.uix.card import MDCard
+from kivymd.uix.card import MDCardSwipe
 from kivymd.uix.dialog import MDDialog
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
@@ -20,6 +22,7 @@ import sqlite3
 import Backend.Ingredient as Ing
 import Backend.Application as Apple
 import Backend.Fridge as Frg
+import Backend.Recipe as Rec
 import http.client as httplib
 import os
 
@@ -90,7 +93,14 @@ class LoginLayout(GridLayout):
 
 
 class LoadingScreen(Screen):
-    pass
+
+    def __init__(self, **kw):
+        super().__init__(**kw)
+
+    def on_enter(self):
+        app.app.getRecipeFromSelectedIngredients(app.numToGrab, None)
+        app.sm.get_screen("Recipe List").initializeFromRecipesList(app.app.getRecipes())
+        app.sm.current = 'Recipe List'
 
 
 # The main screen, with the bottom navigation panels + their contents
@@ -195,7 +205,23 @@ class RecipeViewScreen(Screen):
 
     def initializeFromRecipesList(self, r_list):
         self.recipes = r_list
-        # TODO: refresh this screen based on the list given
+        for r in self.recipes:
+            self.ids.viewScroll.add_widget(RecipeDisplay(r))
+
+
+class RecipeDisplay(MDCardSwipe):
+    rec: Rec.Recipe
+
+    def toastPlaceholder(self, tlli):
+        toast("Coming soon: " + tlli.text)
+
+    def __init__(self, rec: Rec.Recipe, **kwargs):
+        super().__init__(**kwargs)
+        self.rec = rec
+        self.ids.recFront.add_widget(ThreeLineListItem(text=self.rec.getName(),
+                                     secondary_text=str(self.rec.getCalories()) + " cal.",
+                                     tertiary_text="Missed ingredients: " + str(self.rec.getMCount()),
+                                                       on_release=self.toastPlaceholder))
 
 
 # the MDCard that holds ingredient name + buttons for editing ingredient
@@ -214,7 +240,6 @@ class FridgeDisplay(MDCard):
             self.ids.fAmtLabel.font_size -= 7
 
     # handles checkbox changing state
-    # TODO: update that one part of the main screen when it is added
     def on_checkbox(self, checkbox, value):
         if value:
             self.ing.setSelected(True)
@@ -468,7 +493,12 @@ class GetRecipeContent(BoxLayout):
             if numSelected == 0:
                 toast("Select some ingredients first!")
             else:
-                app.sm.current = 'Recipe List'
+                if check_connectivity():
+                    numToGrab = int(self.ids.numRecipes.text)
+                    app.numToGrab = numToGrab
+                    app.sm.current = 'Loading Screen'
+                else:
+                    toast("Please connect to the internet first.")
 
 
 # The content of the AddIngredientDialog
@@ -549,6 +579,7 @@ class Main(MDApp):
     menu_t = None
     menu_sort = None
     j_store = None
+    numToGrab = None
 
     # here for use in kv files
     def toasty(self, msg):
@@ -712,6 +743,7 @@ class Main(MDApp):
         self.mItems = None
         self.mItems_t = None
         self.menu_t = None
+        self.numToGrab = 1
         self.app = Apple.Application()
         self.app.wipe()
         # Here is where I would load from json if I were to use it
