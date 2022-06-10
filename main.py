@@ -1,3 +1,4 @@
+import functools
 import sys
 
 from kivy.utils import rgba
@@ -196,6 +197,33 @@ class SpecialLabel(MDLabel):
     pass
 
 
+def compareName(r1: Rec.Recipe, r2: Rec.Recipe):
+    if r1.getName() < r2.getName():
+        return -1
+    elif r1.getName() > r2.getName():
+        return 1
+    else:
+        return 0
+
+
+def compareCals(r1: Rec.Recipe, r2: Rec.Recipe):
+    if r1.getCalories() < r2.getCalories():
+        return -1
+    elif r1.getCalories() > r2.getCalories():
+        return 1
+    else:
+        return 0
+
+
+def compareMissed(r1: Rec.Recipe, r2: Rec.Recipe):
+    if r1.getMCount() < r2.getMCount():
+        return -1
+    elif r1.getMCount() > r2.getMCount():
+        return 1
+    else:
+        return 0
+
+
 class RecipeViewScreen(Screen):
     recipes = None
 
@@ -205,6 +233,24 @@ class RecipeViewScreen(Screen):
 
     def initializeFromRecipesList(self, r_list):
         self.recipes = r_list
+        for r in self.recipes:
+            self.ids.viewScroll.add_widget(RecipeDisplay(r))
+
+    def sortByName(self):
+        self.ids.viewScroll.clear_widgets()
+        self.recipes = sorted(self.recipes, key=functools.cmp_to_key(compareName))
+        for r in self.recipes:
+            self.ids.viewScroll.add_widget(RecipeDisplay(r))
+
+    def sortByCals(self):
+        self.ids.viewScroll.clear_widgets()
+        self.recipes = sorted(self.recipes, key=functools.cmp_to_key(compareCals))
+        for r in self.recipes:
+            self.ids.viewScroll.add_widget(RecipeDisplay(r))
+
+    def sortByMissed(self):
+        self.ids.viewScroll.clear_widgets()
+        self.recipes = sorted(self.recipes, key=functools.cmp_to_key(compareCals))
         for r in self.recipes:
             self.ids.viewScroll.add_widget(RecipeDisplay(r))
 
@@ -219,8 +265,8 @@ class RecipeDisplay(MDCardSwipe):
         super().__init__(**kwargs)
         self.rec = rec
         self.ids.recFront.add_widget(ThreeLineListItem(text=self.rec.getName(),
-                                     secondary_text=str(self.rec.getCalories()) + " cal.",
-                                     tertiary_text="Missed ingredients: " + str(self.rec.getMCount()),
+                                                       secondary_text=str(self.rec.getCalories()) + " cal.",
+                                                       tertiary_text="Missed ingredients: " + str(self.rec.getMCount()),
                                                        on_release=self.toastPlaceholder))
 
 
@@ -727,7 +773,14 @@ class Main(MDApp):
 
     def set_item_sort(self, arg):
         self.sm.get_screen('Recipe List').ids.sortItem.set_item(arg)
-        toast("Coming soon...")
+        if arg == "Name":
+            self.sm.get_screen('Recipe List').sortByName()
+        elif arg == "Calories":
+            self.sm.get_screen('Recipe List').sortByCals()
+        elif arg == "# Missing Ingredients":
+            self.sm.get_screen('Recipe List').sortByMissed()
+        else:
+            toast("Invalid input. Please try again.")
         self.menu_sort.dismiss()
 
     def switchToMain(self):
