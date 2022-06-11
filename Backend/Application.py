@@ -3,6 +3,7 @@ import Backend.SpRecipeGrabber as Grb
 import Backend.SpRecipeGrabberTh as Grbth
 import Backend.Recipe as Rec
 import Backend.Ingredient as Ig
+import Backend.IngList as Lis
 from decimal import *
 from typing import List
 
@@ -18,6 +19,7 @@ class Application:
     recipes: List[Rec.Recipe]
     user_id: str
     has_chosen_id: bool
+    lists: List[Lis.IngList]
 
     def __init__(self):
         self.fridge = Frg.Fridge("Fridge")
@@ -27,6 +29,7 @@ class Application:
         self.grabber = Grb.SpRecipeGrabber()
         self.grabberth = Grbth.SpRecipeGrabberTh()
         self.recipes = []
+        self.lists = []
         self.has_chosen_id = False
         self.user_id = ""
 
@@ -101,6 +104,7 @@ class Application:
 
     # grabs a list of num recipes using the Spoonacular API, from selected items in all four fridges
     def getRecipeFromSelectedIngredients(self, num: int, calories: int or None):
+        self.grabber.ingredients.clear()
         for i in self.getSelectedIngredients():
             self.grabber.addIngredient(i)
 
@@ -108,6 +112,7 @@ class Application:
 
     # it's a surprise :^)
     def getRecipeFromSelectedIngredientsTh(self, num: int, calories: int or None):
+        self.grabberth.ingredients.clear()
         for i in self.fridge.getIngredient():
             if i.getSelected():
                 self.grabberth.addIngredient(i)
@@ -126,6 +131,12 @@ class Application:
 
         self.recipes = self.grabberth.grabRecipe(num, calories)
 
+    def addListToLists(self, lis: Lis.IngList):
+        self.lists.append(lis)
+
+    def removeListFromLists(self, lis: Lis.IngList):
+        self.lists.remove(lis)
+
     def set_id(self, u_id: str):
         self.user_id = u_id
 
@@ -137,5 +148,6 @@ class Application:
         self.freezer.ingredients.clear()
         self.pantry.ingredients.clear()
         self.misc.ingredients.clear()
+        self.lists.clear()
         self.user_id = ""
         self.has_chosen_id = False

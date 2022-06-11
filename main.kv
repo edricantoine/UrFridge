@@ -163,7 +163,7 @@
                                 theme_text_color: "Custom"
                                 text_color: get_color_from_hex("#08421e")
                                 line_color: get_color_from_hex("#08421e")
-                                on_press: app.toasty("Coming soon...")
+                                on_press: app.showNameListDialog()
                         AnchorLayout:
                             MDRectangleFlatButton:
                                 text: "My Lists"
@@ -383,6 +383,30 @@
         id: numRecipes
         hint_text: "Number of recipes to grab"
         input_filter: 'int'
+        max_text_length: 1
+        helper_text: "This field is required"
+        helper_text_mode: 'on_focus'
+        color_mode: 'custom'
+        line_color_focus: get_color_from_hex("#6b8a70")
+
+
+    MDFloatingActionButton:
+        id: grabButton
+        pos_hint: {'center_x': 0.5}
+        icon: 'check'
+        md_bg_color: get_color_from_hex("#6b8a70")
+        on_press: self.parent.readInput(), app.dialog_close()
+
+
+<NameListContent@BoxLayout>:
+    orientation: 'vertical'
+    spacing: '12dp'
+    height: '150dp'
+    size_hint_y: None
+
+    MDTextField:
+        id: numRecipes
+        hint_text: "Give your list a name!"
         max_text_length: 1
         helper_text: "This field is required"
         helper_text_mode: 'on_focus'
