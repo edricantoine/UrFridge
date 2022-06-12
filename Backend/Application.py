@@ -110,6 +110,22 @@ class Application:
 
         self.recipes = self.grabber.grabRecipe(num, calories)
 
+    def setListName(self, lis: Lis.IngList, name: str):
+        for i in self.lists:
+            if i.getName() == name:
+                return False
+
+        lis.setName(name)
+        return True
+
+    # grabs a list of num recipes using the Spoonacular API, given a IngList
+    def getRecipeFromList(self, lis: Lis.IngList, num:int):
+        self.grabber.ingredients.clear()
+        for i in lis:
+            self.grabber.addIngredient(i)
+
+        self.recipes = self.grabber.grabRecipe(num, None)
+
     # it's a surprise :^)
     def getRecipeFromSelectedIngredientsTh(self, num: int, calories: int or None):
         self.grabberth.ingredients.clear()

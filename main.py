@@ -24,9 +24,11 @@ import Backend.Ingredient as Ing
 import Backend.Application as Apple
 import Backend.Fridge as Frg
 import Backend.Recipe as Rec
+import Backend.IngList as Lis
 import http.client as httplib
 import os
 import webbrowser
+import json
 
 app_path = os.path.dirname(os.path.abspath(__file__))
 squirrel = sqlite3.connect(os.path.join(app_path, 'userdata.db'), detect_types=sqlite3.PARSE_DECLTYPES)
@@ -101,6 +103,22 @@ class LoadingScreen(Screen):
 
     def on_enter(self):
         app.app.getRecipeFromSelectedIngredients(app.numToGrab, None)
+        app.sm.get_screen("Recipe List").initializeFromRecipesList(app.app.getRecipes())
+        app.sm.current = 'Recipe List'
+
+
+class LoadingScreenList(Screen):
+    lis: Lis.IngList
+
+    def __init__(self, lis: Lis.IngList, **kw):
+        self.lis = lis
+        super().__init__(**kw)
+
+    def change_list(self, lis: Lis.IngList):
+        self.lis = lis
+
+    def on_enter(self):
+        app.app.getRecipeFromList(self.lis, app.numToGrab)
         app.sm.get_screen("Recipe List").initializeFromRecipesList(app.app.getRecipes())
         app.sm.current = 'Recipe List'
 
@@ -530,7 +548,25 @@ class NameListContent(BoxLayout):
     aap = Apple.Application
 
     def readInput(self):
-        pass
+        liste = Lis.IngList()
+        for i in app.app.getSelectedIngredients():
+            liste.addIngredient(i)
+        name = self.ids.listName.text
+        if app.app.setListName(liste, name):
+            app.app.addListToLists(liste)
+            listeNames = []
+            for i in liste.main_list:
+                listeNames.append(i.getName())
+            c.execute("""
+                        INSERT INTO lists(name, contents, owner)
+                        VALUES(?, ?, ?)
+                        """, (name, json.dumps(listeNames), app.app.getId()))
+            squirrel.commit()
+            toast("List added successfully!")
+        else:
+            toast("You already have a list with that name.")
+
+        self.ids.listName.text = ""
 
     def __init__(self, aap: Apple.Application, **kwargs):
         super().__init__(**kwargs)
@@ -848,6 +884,15 @@ class Main(MDApp):
         )
         """
         c.execute(command)
+        command = """
+        CREATE TABLE IF NOT EXISTS lists(
+        name varchar(25) NOT NULL,
+        contents varchar(255) NOT NULL,
+        owner varchar(25) NOT NULL,
+        FOREIGN KEY(owner) REFERENCES users(id)
+        )
+        """
+        c.execute(command)
         squirrel.commit()
         # Checks for a logged-in user, if it is found, initializes app to that user's saved state
         c.execute("""SELECT * FROM users WHERE logged = 1""")
@@ -948,6 +993,21 @@ class Main(MDApp):
         for d in data:
             i = Ing.Ingredient(d[0], d[1], d[2])
             self.app.getMisc().addIngredientTwo(i)
+
+        c.execute("""SELECT * FROM lists WHERE owner = ?""", (u_id, ))
+        data = c.fetchall()
+        # print(data)
+        for d in data:
+            liste = Lis.IngList()
+            name = d[0]
+            contents = d[1]
+            contentsList = json.loads(contents)
+            for s in contentsList:
+                liste.addIngredient(Ing.Ingredient(s, Decimal(1), "unit"))
+
+            liste.setName(name)
+            self.app.addListToLists(liste)
+
 
     # calls static resource path function
     def resource_path(self, relative_path):

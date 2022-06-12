@@ -405,9 +405,9 @@
     size_hint_y: None
 
     MDTextField:
-        id: numRecipes
+        id: listName
         hint_text: "Give your list a name!"
-        max_text_length: 1
+        max_text_length: 10
         helper_text: "This field is required"
         helper_text_mode: 'on_focus'
         color_mode: 'custom'
@@ -415,7 +415,7 @@
 
 
     MDFloatingActionButton:
-        id: grabButton
+        id: goButton
         pos_hint: {'center_x': 0.5}
         icon: 'check'
         md_bg_color: get_color_from_hex("#6b8a70")
@@ -519,6 +519,31 @@
 
 
 <LoadingScreen>:
+    BoxLayout:
+        id: loadingBox
+        orientation: 'vertical'
+        Image:
+            id: loadingIcon
+            source: 'ZZ5H.gif'
+            pos: self.pos
+            size_hint: None, None
+            size: root.size
+            allow_stretch: True
+            keep_ratio: True
+            anim_loop: 0
+
+        MDLabel:
+            text: 'Please wait, we are fetching your recipe(s)...'
+            halign: 'center'
+            font_size: '25sp'
+            font_name: 'DMSans'
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex("#08421e")
+            size: self.texture_size
+            size_hint_y: None
+
+
+<LoadingScreenList>:
     BoxLayout:
         id: loadingBox
         orientation: 'vertical'

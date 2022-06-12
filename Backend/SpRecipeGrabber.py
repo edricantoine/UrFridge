@@ -1,10 +1,8 @@
-import requests
 import Backend.config as config
 import spoonacular as sp
 import Backend.Ingredient as Ing
 import Backend.Recipe as Rec
 from typing import List
-from typing import Tuple
 
 
 # A class which uses the Spoonacular API to grab recipes: more accurate recipes based on ingredients,
