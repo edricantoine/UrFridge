@@ -1,9 +1,9 @@
-import Backend.Fridge as Frg
-import Backend.SpRecipeGrabber as Grb
-import Backend.SpRecipeGrabberTh as Grbth
-import Backend.Recipe as Rec
-import Backend.Ingredient as Ig
-import Backend.IngList as Lis
+import backend.Fridge as Frg
+import backend.SpRecipeGrabber as Grb
+import backend.SpRecipeGrabberTh as Grbth
+import backend.Recipe as Rec
+import backend.Ingredient as Ig
+import backend.IngList as Lis
 from decimal import *
 from typing import List
 
@@ -122,7 +122,7 @@ class Application:
         return True
 
     # grabs a list of num recipes using the Spoonacular API, given a IngList
-    # TODO: Test this function when it is needed
+    # TODO: test this function when it is needed
     def getRecipeFromList(self, lis: Lis.IngList, num:int):
         self.grabber.ingredients.clear()
         for i in lis:

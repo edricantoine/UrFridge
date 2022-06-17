@@ -20,11 +20,11 @@ from decimal import *
 from kivy.storage.jsonstore import JsonStore
 from kivy.core.window import Window
 import sqlite3
-import Backend.Ingredient as Ing
-import Backend.Application as Apple
-import Backend.Fridge as Frg
-import Backend.Recipe as Rec
-import Backend.IngList as Lis
+import backend.Ingredient as Ing
+import backend.Application as Apple
+import backend.Fridge as Frg
+import backend.Recipe as Rec
+import backend.IngList as Lis
 import http.client as httplib
 import os
 import webbrowser
@@ -159,7 +159,7 @@ class MainScreen(Screen):
                                                                                  'Antoine 2022',
                     theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
 
-    # clears scrollpanes and refreshes ingredient UI for all four fridges
+    # clears scrollpanes and refreshes ingredient ui for all four fridges
 
     def clearify(self):
 
@@ -168,26 +168,26 @@ class MainScreen(Screen):
         self.refreshPantry()
         self.refreshMisc()
 
-    # clears scrollpanes and refreshes ingredient UI for fridge
+    # clears scrollpanes and refreshes ingredient ui for fridge
 
     def refreshFridge(self):
         self.ids.frScroll.clear_widgets()
         for i in self.app.fridge.getIngredient():
             self.ids.frScroll.add_widget(FridgeDisplay(i, self.app.getFridge(), self))
 
-    # clears scrollpanes and refreshes ingredient UI for freezer
+    # clears scrollpanes and refreshes ingredient ui for freezer
     def refreshFreezer(self):
         self.ids.fzScroll.clear_widgets()
         for i in self.app.freezer.getIngredient():
             self.ids.fzScroll.add_widget(FridgeDisplay(i, self.app.getFreezer(), self))
 
-    # clears scrollpanes and refreshes ingredient UI for pantry
+    # clears scrollpanes and refreshes ingredient ui for pantry
     def refreshPantry(self):
         self.ids.pnScroll.clear_widgets()
         for i in self.app.pantry.getIngredient():
             self.ids.pnScroll.add_widget(FridgeDisplay(i, self.app.getPantry(), self))
 
-    # clears scrollpanes and refreshes ingredient UI for misc. section
+    # clears scrollpanes and refreshes ingredient ui for misc. section
     def refreshMisc(self):
         self.ids.msScroll.clear_widgets()
         for i in self.app.misc.getIngredient():

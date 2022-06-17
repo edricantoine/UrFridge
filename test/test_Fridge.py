@@ -1,6 +1,6 @@
 import unittest
-import Backend.Ingredient as Ing
-import Backend.Fridge as Frg
+import backend.Ingredient as Ing
+import backend.Fridge as Frg
 
 
 class MyTestCase(unittest.TestCase):
