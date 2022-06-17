@@ -56,6 +56,9 @@ class Application:
     def getRecipes(self):
         return self.recipes
 
+    def getLists(self):
+        return self.lists
+
     # adds an ingredient to a fridge given an Ingredient object
     def addIngredientTwo(self, ig: Ig.Ingredient, where: str):
         name = ig.getName()
@@ -119,6 +122,7 @@ class Application:
         return True
 
     # grabs a list of num recipes using the Spoonacular API, given a IngList
+    # TODO: Test this function when it is needed
     def getRecipeFromList(self, lis: Lis.IngList, num:int):
         self.grabber.ingredients.clear()
         for i in lis:
@@ -126,7 +130,7 @@ class Application:
 
         self.recipes = self.grabber.grabRecipe(num, None)
 
-    # it's a surprise :^)
+    # DOES NOT WORK YET. DO NOT USE
     def getRecipeFromSelectedIngredientsTh(self, num: int, calories: int or None):
         self.grabberth.ingredients.clear()
         for i in self.fridge.getIngredient():
@@ -150,6 +154,7 @@ class Application:
     def addListToLists(self, lis: Lis.IngList):
         self.lists.append(lis)
 
+    # CAN NEVER BE CALLED WHEN lis IS NOT IN self.lists, SO DOESN'T CHECK FOR THAT.
     def removeListFromLists(self, lis: Lis.IngList):
         self.lists.remove(lis)
 

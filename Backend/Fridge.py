@@ -21,11 +21,13 @@ class Fridge:
     def getIngredient(self):
         return self.ingredients
 
-    # adds ingredient to this fridge
+    # creates + adds ingredient to this fridge given parameters.
+    # WILL ALWAYS BE CALLED THROUGH "APPLICATION" CLASS, SO DOES NOT CHECK DUPLICATES
     def addIngredient(self, name: str, quant: Decimal, unit: str):
         self.ingredients.append(Ing.Ingredient(name, quant, unit))
 
-    # adds ingredient directly to fridge
+    # adds ingredient directly to fridge.
+    # WILL ALWAYS BE CALLED THROUGH "APPLICATION" CLASS, SO DOES NOT CHECK DUPLICATES
     def addIngredientTwo(self, ig: Ing.Ingredient):
         self.ingredients.append(ig)
 
