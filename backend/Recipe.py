@@ -1,4 +1,4 @@
-import Backend.Ingredient as Ing
+import backend.Ingredient as Ing
 from typing import List
 
 

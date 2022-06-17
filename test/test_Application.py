@@ -1,8 +1,8 @@
 import unittest
-import Backend.Fridge as Frg
-import Backend.Application as App
-import Backend.Ingredient as Ing
-import Backend.IngList as Lis
+import backend.Fridge as Frg
+import backend.Application as App
+import backend.Ingredient as Ing
+import backend.IngList as Lis
 from decimal import *
 
 
@@ -221,7 +221,7 @@ class MyTestCase(unittest.TestCase):
         self.a.addIngredientTwo(i3, "pantry")
         self.a.addIngredientTwo(i4, "misc")
 
-        self.a.set_id("Test ID")
+        self.a.set_id("test ID")
         self.a.set_has_id(True)
 
         list_one = Lis.IngList()

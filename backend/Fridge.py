@@ -1,5 +1,5 @@
-import Backend.SpRecipeGrabber as Grab
-import Backend.Ingredient as Ing
+import backend.SpRecipeGrabber as Grab
+import backend.Ingredient as Ing
 
 
 from typing import List
