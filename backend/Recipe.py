@@ -5,6 +5,9 @@ from typing import List
 # A class representing a Recipe with a name, id, url, calories, servings, time to prepare, missing ingredients,
 # number of missing ingredients, and whether it's vegan or vegetarian
 
+# As the methods in this class are all getters, setters, or testing methods that print something, no testing
+# is needed for this class.
+
 class Recipe:
     name: str
     id: int

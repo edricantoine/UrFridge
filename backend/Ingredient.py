@@ -14,7 +14,7 @@ class Ingredient:
         self.selected = False
         self.unit = unit
 
-    # getters and setters
+    # getters and setters, no testing needed
     def getName(self):
         return self.name
 
@@ -34,5 +34,6 @@ class Ingredient:
         self.selected = sel
 
     # sets quantity of item relative to current quantity
+    # TESTED
     def setQuantRelative(self, to_add: Decimal):
         self.quantity += to_add

@@ -11,6 +11,7 @@ from decimal import *
 class MyTestCase(unittest.TestCase):
     a = App.Application
 
+    # This also serves to test the recipe grabbing functionality of the SpRecipeGrabber class.
     def testGrabRecipe(self):
         self.a = App.Application()
         self.a.fridge = Frg.Fridge("Fridge")
