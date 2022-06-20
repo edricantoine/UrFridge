@@ -95,6 +95,10 @@ class LoginLayout(GridLayout):
         super().__init__(**kwargs)
         self.app = apple
 
+    def login(self, id_name: str):
+        self.ids.idName.text = ""
+        app.login(id_name)
+
 
 class LoadingScreen(Screen):
 
@@ -994,7 +998,7 @@ class Main(MDApp):
             i = Ing.Ingredient(d[0], d[1], d[2])
             self.app.getMisc().addIngredientTwo(i)
 
-        c.execute("""SELECT * FROM lists WHERE owner = ?""", (u_id, ))
+        c.execute("""SELECT * FROM lists WHERE owner = ?""", (u_id,))
         data = c.fetchall()
         # print(data)
         for d in data:
@@ -1007,7 +1011,6 @@ class Main(MDApp):
 
             liste.setName(name)
             self.app.addListToLists(liste)
-
 
     # calls static resource path function
     def resource_path(self, relative_path):
