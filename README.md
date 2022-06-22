@@ -13,7 +13,7 @@ The user interface is written in Python, using the Kivy and KivyMD graphical use
 Data persistence is done by way of SQLite3, and a local database is created on the user's device storing all local 
 user IDs of the application, ingredients, and which ingredients belong to which users.
 
-### TO INSTALL AND RUN
+### TO INSTALL, BUILD, AND RUN
 
 The current latest version of the APK is included in this repository. Currently, only Android users are able to 
 install and run this application on a mobile device. If you, for whatever reason, wish to run this application from

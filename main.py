@@ -1105,7 +1105,6 @@ class Main(MDApp):
             self.sm.current = 'Login Screen'
         else:
             self.sm.current = 'Main Screen'
-
         return self.sm
 
 
