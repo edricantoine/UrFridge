@@ -48,6 +48,13 @@ Special thanks to [johnwmillr](https://github.com/johnwmillr) for the excellent 
 
 ### Thanks for taking the time to look at this project!
 
+### TODO:
+
+- Separate main .kv file into smaller .kv files?
+- Implement functionality for viewing lists
+- Share lists to social media?
+- Create parent class / reduce code repetition in AddButton classes
+
 
 
 
