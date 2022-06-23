@@ -1,20 +1,12 @@
-import functools
 import sys
 
-from kivy.utils import rgba
 from kivymd.app import MDApp
-from kivymd.uix.button import MDFloatingActionButton
 from kivymd.uix.label import MDLabel
-from kivymd.uix.list import ThreeLineListItem
 from kivymd.toast import toast
 from kivy.config import Config
 from kivy.core.text import LabelBase
-from kivy.uix.screenmanager import ScreenManager, Screen
-from kivymd.uix.card import MDCard
-from kivymd.uix.card import MDCardSwipe
+from kivy.uix.screenmanager import ScreenManager
 from kivymd.uix.dialog import MDDialog
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.gridlayout import GridLayout
 from kivymd.uix.menu import MDDropdownMenu
 from decimal import *
 from kivy.storage.jsonstore import JsonStore
@@ -22,13 +14,22 @@ from kivy.core.window import Window
 import sqlite3
 import backend.Ingredient as Ing
 import backend.Application as Apple
-import backend.Fridge as Frg
 import backend.Recipe as Rec
 import backend.IngList as Lis
 import http.client as httplib
 import os
-import webbrowser
 import json
+
+from ui.AddIngredientContent import AddIngredientContent
+from ui.AddIngredientDialog import AddIngredientDialog
+from ui.EditIngredientContent import EditIngredientContent
+from ui.GetRecipeContent import GetRecipeContent
+from ui.ListViewScreen import ListViewScreen
+from ui.LoadingScreen import LoadingScreen
+from ui.LoginScreen import LoginScreen
+from ui.MainScreen import MainScreen
+from ui.NameListContent import NameListContent
+from ui.RecipeViewScreen import RecipeViewScreen
 
 app_path = os.path.dirname(os.path.abspath(__file__))
 squirrel = sqlite3.connect(os.path.join(app_path, 'userdata.db'), detect_types=sqlite3.PARSE_DECLTYPES)
@@ -78,137 +79,15 @@ def check_connectivity():
 
 
 # Class representing the 'login' screen
-class LoginScreen(Screen):
-    app = None
-
-    def __init__(self, apple: Apple.Application, **kw):
-        super().__init__(**kw)
-        self.app = apple
-        self.ids.loginGrid.add_widget(LoginLayout(self.app))
 
 
 # Class holding all the stuff in the login screen
-class LoginLayout(GridLayout):
-    app = None
-
-    def __init__(self, apple: Apple.Application, **kwargs):
-        super().__init__(**kwargs)
-        self.app = apple
-
-    def login(self, id_name: str):
-        self.ids.idName.text = ""
-        app.login(id_name)
-
-
-class LoadingScreen(Screen):
-
-    def __init__(self, **kw):
-        super().__init__(**kw)
-
-    def on_enter(self):
-        app.app.getRecipeFromSelectedIngredients(app.numToGrab, None)
-        app.sm.get_screen("Recipe List").initializeFromRecipesList(app.app.getRecipes())
-        app.sm.current = 'Recipe List'
-
-
-class LoadingScreenList(Screen):
-    lis: Lis.IngList
-
-    def __init__(self, lis: Lis.IngList, **kw):
-        self.lis = lis
-        super().__init__(**kw)
-
-    def change_list(self, lis: Lis.IngList):
-        self.lis = lis
-
-    def on_enter(self):
-        app.app.getRecipeFromList(self.lis, app.numToGrab)
-        app.sm.get_screen("Recipe List").initializeFromRecipesList(app.app.getRecipes())
-        app.sm.current = 'Recipe List'
 
 
 # The main screen, with the bottom navigation panels + their contents
 
-class MainScreen(Screen):
-    app = None
 
-    # We do a minuscule amount of initializing
-    def __init__(self, aap: Apple.Application, **kw):
-        super().__init__(**kw)
-        self.app = aap
-        self.clearify()
-        self.ids.botNav.switch_tab("home")
-        self.ids.msBb.add_widget(AddIngredientButtonMs(self.app.misc, self, "misc"))
-        self.ids.msBox.add_widget(NothingThereLabel())
-        self.ids.msBox.add_widget(
-            MDLabel(halign='center', font_name=resource_path("DMSANS.ttf"), text='YourFridge © Edric '
-                                                                                 'Antoine 2022',
-                    theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
-        self.ids.pnBb.add_widget(AddIngredientButtonPn(self.app.pantry, self, "pantry"))
-        self.ids.pnBox.add_widget(NothingThereLabel())
-        self.ids.pnBox.add_widget(
-            MDLabel(halign='center', font_name=resource_path("DMSANS.ttf"), text='YourFridge © Edric '
-                                                                                 'Antoine 2022',
-                    theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
-        self.ids.fzBb.add_widget(AddIngredientButtonFz(self.app.freezer, self, "freezer"))
-        self.ids.fzBox.add_widget(NothingThereLabel())
-        self.ids.fzBox.add_widget(
-            MDLabel(halign='center', font_name=resource_path("DMSANS.ttf"), text='YourFridge © Edric '
-                                                                                 'Antoine 2022',
-                    theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
-        self.ids.frBb.add_widget(AddIngredientButtonFr(self.app.fridge, self, "fridge"))
-        self.ids.frBox.add_widget(NothingThereLabel())
-        self.ids.frBox.add_widget(
-            MDLabel(halign='center', font_name=resource_path("DMSANS.ttf"), text='YourFridge © Edric '
-                                                                                 'Antoine 2022',
-                    theme_text_color="Custom", font_size='10sp', text_color=rgba("#bec5d1")))
-
-    # clears scrollpanes and refreshes ingredient ui for all four fridges
-
-    def clearify(self):
-
-        self.refreshFridge()
-        self.refreshFreezer()
-        self.refreshPantry()
-        self.refreshMisc()
-
-    # clears scrollpanes and refreshes ingredient ui for fridge
-
-    def refreshFridge(self):
-        self.ids.frScroll.clear_widgets()
-        for i in self.app.fridge.getIngredient():
-            self.ids.frScroll.add_widget(FridgeDisplay(i, self.app.getFridge(), self))
-
-    # clears scrollpanes and refreshes ingredient ui for freezer
-    def refreshFreezer(self):
-        self.ids.fzScroll.clear_widgets()
-        for i in self.app.freezer.getIngredient():
-            self.ids.fzScroll.add_widget(FridgeDisplay(i, self.app.getFreezer(), self))
-
-    # clears scrollpanes and refreshes ingredient ui for pantry
-    def refreshPantry(self):
-        self.ids.pnScroll.clear_widgets()
-        for i in self.app.pantry.getIngredient():
-            self.ids.pnScroll.add_widget(FridgeDisplay(i, self.app.getPantry(), self))
-
-    # clears scrollpanes and refreshes ingredient ui for misc. section
-    def refreshMisc(self):
-        self.ids.msScroll.clear_widgets()
-        for i in self.app.misc.getIngredient():
-            self.ids.msScroll.add_widget(FridgeDisplay(i, self.app.getMisc(), self))
-
-    # Stuff that happens whenever we re-enter the MainScreen
-    def on_enter(self):
-        self.clearify()
-        self.refresh_homepage()
-
-    # Refreshes the homepage - will definitely have more stuff added to this lol
-    def refresh_homepage(self):
-        self.ids.welcomeLabel.text = "Hello, " + self.app.getId() + "!"
-        self.ids.selectedGrid.clear_widgets()
-        for i in self.app.getSelectedIngredients():
-            self.ids.selectedGrid.add_widget(SpecialLabel(text=i.getName()))
-        # print("Homepage refreshed.")
+# screen for viewing lists
 
 
 # holds all screens in app
@@ -216,262 +95,22 @@ class WindowManager(ScreenManager):
     pass
 
 
-class SpecialLabel(MDLabel):
-    pass
-
-
-def compareName(r1: Rec.Recipe, r2: Rec.Recipe):
-    if r1.getName() < r2.getName():
-        return -1
-    elif r1.getName() > r2.getName():
-        return 1
-    else:
-        return 0
-
-
-def compareCals(r1: Rec.Recipe, r2: Rec.Recipe):
-    if r1.getCalories() < r2.getCalories():
-        return -1
-    elif r1.getCalories() > r2.getCalories():
-        return 1
-    else:
-        return 0
-
-
-def compareMissed(r1: Rec.Recipe, r2: Rec.Recipe):
-    if r1.getMCount() < r2.getMCount():
-        return -1
-    elif r1.getMCount() > r2.getMCount():
-        return 1
-    else:
-        return 0
-
-
-class RecipeViewScreen(Screen):
-    recipes = None
-
-    def __init__(self, **kw):
-        super().__init__(**kw)
-        self.recipes = []
-
-    def initializeFromRecipesList(self, r_list):
-        self.ids.viewScroll.clear_widgets()
-        self.recipes = r_list
-        for r in self.recipes:
-            self.ids.viewScroll.add_widget(RecipeDisplay(r))
-
-    def sortByName(self):
-        self.ids.viewScroll.clear_widgets()
-        self.recipes = sorted(self.recipes, key=functools.cmp_to_key(compareName))
-        for r in self.recipes:
-            self.ids.viewScroll.add_widget(RecipeDisplay(r))
-
-    def sortByCals(self):
-        self.ids.viewScroll.clear_widgets()
-        self.recipes = sorted(self.recipes, key=functools.cmp_to_key(compareCals))
-        for r in self.recipes:
-            self.ids.viewScroll.add_widget(RecipeDisplay(r))
-
-    def sortByMissed(self):
-        self.ids.viewScroll.clear_widgets()
-        self.recipes = sorted(self.recipes, key=functools.cmp_to_key(compareCals))
-        for r in self.recipes:
-            self.ids.viewScroll.add_widget(RecipeDisplay(r))
-
-
-class RecipeDisplay(MDCardSwipe):
-    rec: Rec.Recipe
-
-    def openInBrowser(self, x):
-        webbrowser.open(self.rec.getUrl())
-
-    def __init__(self, rec: Rec.Recipe, **kwargs):
-        super().__init__(**kwargs)
-        self.rec = rec
-        self.ids.recFront.add_widget(ThreeLineListItem(text=self.rec.getName(),
-                                                       secondary_text=str(self.rec.getCalories()) + " cal.",
-                                                       tertiary_text="Missed ingredients: " + str(self.rec.getMCount()),
-                                                       on_release=self.openInBrowser))
-
-
 # the MDCard that holds ingredient name + buttons for editing ingredient
-class FridgeDisplay(MDCard):
-    ing: Ing.Ingredient
-    frg = Frg.Fridge
-    ms = MainScreen
-
-    # Handles dynamic resizing of text (copied from StackOverflow lmao)
-    def on_text(self):
-        if self.ids.fDisplayLabel.texture_size[0] >= self.ids.fDisplayLabel.width or \
-                self.ids.fDisplayLabel.texture_size[1] >= self.ids.fDisplayLabel.height:
-            self.ids.fDisplayLabel.font_size -= 7
-        if self.ids.fAmtLabel.texture_size[0] >= self.ids.fAmtLabel.width or self.ids.fAmtLabel.texture_size[
-            1] >= self.ids.fAmtLabel.height:
-            self.ids.fAmtLabel.font_size -= 7
-
-    # handles checkbox changing state
-    def on_checkbox(self, checkbox, value):
-        if value:
-            self.ing.setSelected(True)
-            self.ms.ids.selectedGrid.add_widget(SpecialLabel(text=self.ing.getName()))
-            # print("Ingredient " + self.ing.getName() + " is now selected")
-        else:
-            self.ing.setSelected(False)
-            self.ms.refresh_homepage()
-            # self.ms.ids.selectedGrid.remove_widget(SpecialLabel(text=self.ing.getName()))
-            # print("Ingredient " + self.ing.getName() + " is now deselected")
-
-    # calls the appropriate editing dialog
-    def callEdit(self):
-        if self.frg.getName() == "Fridge":
-            app.showEditDialogFr(self.ing)
-        elif self.frg.getName() == "Freezer":
-            app.showEditDialogFz(self.ing)
-        elif self.frg.getName() == "Pantry":
-            app.showEditDialogPn(self.ing)
-        else:
-            app.showEditDialogMs(self.ing)
-
-    # We do a little trolling
-    def __init__(self, ingredient: Ing.Ingredient, fridge: Frg.Fridge, ms: MainScreen, **kwargs):
-        super().__init__(**kwargs)
-        self.ing = ingredient
-        self.frg = fridge
-        self.ms = ms
-        self.ids.fDisplayLabel.text = ingredient.getName()
-        self.ids.fAmtLabel.text = str(ingredient.getQuant()) + " " + ingredient.getUnit()
-        if self.ing.getSelected():
-            self.ids.fDisplaySelector.active = True
-
-    # deletes an ingredient
-    def deletus_ingredient(self):
-
-        self.frg.removeIngredients(self.ing.getName(), self.ing.getQuant())
-        if self.frg.getName() == "Fridge":
-            self.ms.ids.frScroll.remove_widget(self)
-        elif self.frg.getName() == "Freezer":
-            self.ms.ids.fzScroll.remove_widget(self)
-        elif self.frg.getName() == "Pantry":
-            self.ms.ids.pnScroll.remove_widget(self)
-        else:
-            self.ms.ids.msScroll.remove_widget(self)
-
-        self.ms.refresh_homepage()
-
-        c.execute("""DELETE FROM ingredients
-                     WHERE name = ? AND owner = ?""", (self.ing.getName(), self.ms.app.getId()))
-        squirrel.commit()
 
 
 # Button that adds an ingredient (fridge)
 
-class AddIngredientButtonFr(MDFloatingActionButton):
-    fridge: Frg.Fridge
-    ms: MainScreen
-    type: str
-
-    # calls appropriate refresh method of main screen
-    def refresh(self):
-        if self.type == "fridge":
-            self.ms.refreshFridge()
-        elif self.type == 'freezer':
-            self.ms.refreshFreezer()
-        elif self.type == 'pantry':
-            self.ms.refreshPantry()
-        elif self.type == 'misc':
-            self.ms.refreshMisc()
-
-    # We commit a diminutive amount of tomfoolery
-    def __init__(self, f: Frg.Fridge, ms: MainScreen, type: str, **kwargs):
-        super().__init__(**kwargs)
-        self.fridge = f
-        self.ms = ms
-        self.type = type
-
 
 # Same as above, but for freezer
-class AddIngredientButtonFz(MDFloatingActionButton):
-    fridge: Frg.Fridge
-    ms: MainScreen
-    type: str
-
-    # Self-explanatory
-    def refresh(self):
-        if self.type == "fridge":
-            self.ms.refreshFridge()
-        elif self.type == 'freezer':
-            self.ms.refreshFreezer()
-        elif self.type == 'pantry':
-            self.ms.refreshPantry()
-        elif self.type == 'misc':
-            self.ms.refreshMisc()
-
-    # We participate in an atomic amount of trickery
-    def __init__(self, f: Frg.Fridge, ms: MainScreen, type: str, **kwargs):
-        super().__init__(**kwargs)
-        self.fridge = f
-        self.ms = ms
-        self.type = type
 
 
 # Same as above, but for pantry
-class AddIngredientButtonPn(MDFloatingActionButton):
-    fridge: Frg.Fridge
-    ms: MainScreen
-    type: str
-
-    # Self-explanatory
-    def refresh(self):
-        if self.type == "fridge":
-            self.ms.refreshFridge()
-        elif self.type == 'freezer':
-            self.ms.refreshFreezer()
-        elif self.type == 'pantry':
-            self.ms.refreshPantry()
-        elif self.type == 'misc':
-            self.ms.refreshMisc()
-
-    # We partake in a tiny portion of suspicious activity
-    def __init__(self, f: Frg.Fridge, ms: MainScreen, type: str, **kwargs):
-        super().__init__(**kwargs)
-        self.fridge = f
-        self.ms = ms
-        self.type = type
 
 
 # Same as above, but for misc.
-class AddIngredientButtonMs(MDFloatingActionButton):
-    fridge: Frg.Fridge
-    ms: MainScreen
-    type: str
-
-    # Self-explanatory
-    def refresh(self):
-        if self.type == "fridge":
-            self.ms.refreshFridge()
-        elif self.type == 'freezer':
-            self.ms.refreshFreezer()
-        elif self.type == 'pantry':
-            self.ms.refreshPantry()
-        elif self.type == 'misc':
-            self.ms.refreshMisc()
-
-    # We engage in a teensy amount of social experimentation
-    def __init__(self, f: Frg.Fridge, ms: MainScreen, type: str, **kwargs):
-        super().__init__(**kwargs)
-        self.fridge = f
-        self.ms = ms
-        self.type = type
 
 
 # The dialog that helps to add an ingredient
-class AddIngredientDialog(MDDialog):
-    ferg = None
-
-    # We act with a goal of achieving insignificant amounts of wacky antics
-    def __init__(self, schlapp: Frg.Fridge, **kwargs):
-        super().__init__(**kwargs)
-        self.ferg = schlapp
 
 
 # The dialog that helps to edit an ingredient amount
@@ -488,195 +127,12 @@ class NameListDialog(MDDialog):
 
 
 # The content of the EditIngredientDialog
-class EditIngredientContent(BoxLayout):
-    ferg: Frg.Fridge
-    ms: MainScreen
-    ing: Ing.Ingredient
-    type: str
-
-    # Reads the input of the content's textbox, and edits an ingredient amount appropriately
-    def readInput(self):
-        op = self.ids.ddItem.current_item
-        amount = self.ids.newAmount.text
-        if amount == "":
-            toast("Amount field was invalid.")
-
-        else:
-            if op == "Add":
-                self.ferg.increaseIngredient(self.ing.getName(), Decimal(amount))
-                c.execute("""UPDATE ingredients
-                             SET amount = ?
-                             WHERE name = ? AND owner = ?""",
-                          (self.ing.getQuant(), self.ing.getName(), self.ms.app.getId()))
-                squirrel.commit()
-            elif op == "Remove":
-                a = self.ferg.removeIngredients(self.ing.getName(), Decimal(amount))
-                # print("?")
-                if a == 1:
-                    c.execute("""DELETE FROM ingredients
-                                         WHERE name = ? AND owner = ?""", (self.ing.getName(), self.ms.app.getId()))
-                    squirrel.commit()
-                elif a == 0:
-                    c.execute("""UPDATE ingredients
-                                 SET amount = ?
-                                 WHERE name = ? AND owner = ?""",
-                              (self.ing.getQuant(), self.ing.getName(), self.ms.app.getId()))
-                    squirrel.commit()
-
-            else:
-                toast("Invalid command issued.")
-
-        if self.type == "fridge":
-            self.ms.refreshFridge()
-        elif self.type == 'freezer':
-            self.ms.refreshFreezer()
-            # print("!")
-        elif self.type == 'pantry':
-            self.ms.refreshPantry()
-        elif self.type == 'misc':
-            self.ms.refreshMisc()
-
-        self.ms.refresh_homepage()
-        self.ids.newAmount.text = ""
-
-    # We undertake a miniature amount of capers
-    def __init__(self, ferg: Frg.Fridge, mss: MainScreen, ing: Ing.Ingredient, typ: str, **kwargs):
-        super().__init__(**kwargs)
-        self.ferg = ferg
-        self.ms = mss
-        self.ing = ing
-        self.type = typ
-
-
-class NameListContent(BoxLayout):
-    aap = Apple.Application
-
-    def readInput(self):
-        liste = Lis.IngList()
-        for i in app.app.getSelectedIngredients():
-            liste.addIngredient(i)
-        name = self.ids.listName.text
-        if app.app.setListName(liste, name):
-            app.app.addListToLists(liste)
-            listeNames = []
-            for i in liste.main_list:
-                listeNames.append(i.getName())
-            c.execute("""
-                        INSERT INTO lists(name, contents, owner)
-                        VALUES(?, ?, ?)
-                        """, (name, json.dumps(listeNames), app.app.getId()))
-            squirrel.commit()
-            toast("List added successfully!")
-        else:
-            toast("You already have a list with that name.")
-
-        self.ids.listName.text = ""
-
-    def __init__(self, aap: Apple.Application, **kwargs):
-        super().__init__(**kwargs)
-        self.aap = aap
-
-
-class GetRecipeContent(BoxLayout):
-    aap = Apple.Application
-    ms: MainScreen
-
-    def __init__(self, aap: Apple.Application, mss: MainScreen, **kwargs):
-        super().__init__(**kwargs)
-        self.aap = aap
-        self.ms = mss
-
-    def readInput(self):
-        amt = self.ids.numRecipes.text
-        if amt == "" or len(amt) >= 2:
-            toast("Invalid input.")
-        else:
-            selected = self.aap.getSelectedIngredients()
-            numSelected = len(selected)
-            if numSelected == 0:
-                toast("Select some ingredients first!")
-            else:
-                if check_connectivity():
-                    numToGrab = int(self.ids.numRecipes.text)
-                    app.numToGrab = numToGrab
-                    app.sm.current = 'Loading Screen'
-
-                else:
-                    toast("Please connect to the internet first.")
-
-        self.ids.numRecipes.text = ""
 
 
 # The content of the AddIngredientDialog
-class AddIngredientContent(BoxLayout):
-    aap = Apple.Application
-    ms: MainScreen
-    type: str
-
-    # We implement a trifling amount of buffoonery
-    def __init__(self, ferg: Apple.Application, mss: MainScreen, typ: str, **kwargs):
-        super().__init__(**kwargs)
-        self.aap = ferg
-        self.ms = mss
-        self.type = typ
-
-    # Reads the input of the content's textboxes, adds an ingredient or shows an error appropriately
-    def readInput(self):
-        name = self.ids.ingName.text
-        amount = self.ids.ingAmt.text
-        unit = self.ids.ingUnit.text
-        if name != "" and amount != "" and unit != "" and name != "REGISTERED" and len(name) <= 10 and len(
-                amount) <= 10 and len(unit) <= 10:
-            ig = Ing.Ingredient(name, Decimal(amount), unit)
-            if self.aap.addIngredientTwo(ig, self.type):
-                if self.type == "fridge":
-                    self.ms.ids.frScroll.add_widget(FridgeDisplay(ig, self.aap.getFridge(), self.ms))
-                    c.execute("""INSERT INTO ingredients(name, amount, unit, owner, location)
-                                                 VALUES(?, ?, ?, ?, ?)""",
-                              (ig.getName(), ig.getQuant(), ig.getUnit(), self.aap.getId(), "Fridge"))
-                    squirrel.commit()
-                elif self.type == 'freezer':
-                    self.ms.ids.fzScroll.add_widget(FridgeDisplay(ig, self.aap.getFreezer(), self.ms))
-                    c.execute("""INSERT INTO ingredients(name, amount, unit, owner, location)
-                                                                     VALUES(?, ?, ?, ?, ?)""",
-                              (ig.getName(), ig.getQuant(), ig.getUnit(), self.aap.getId(), "Freezer"))
-                    squirrel.commit()
-                elif self.type == 'pantry':
-                    self.ms.ids.pnScroll.add_widget(FridgeDisplay(ig, self.aap.getPantry(), self.ms))
-                    c.execute("""INSERT INTO ingredients(name, amount, unit, owner, location)
-                                                                     VALUES(?, ?, ?, ?, ?)""",
-                              (ig.getName(), ig.getQuant(), ig.getUnit(), self.aap.getId(), "Pantry"))
-                    squirrel.commit()
-                elif self.type == 'misc':
-                    self.ms.ids.msScroll.add_widget(FridgeDisplay(ig, self.aap.getMisc(), self.ms))
-                    c.execute("""INSERT INTO ingredients(name, amount, unit, owner, location)
-                                                                     VALUES(?, ?, ?, ?, ?)""",
-                              (ig.getName(), ig.getQuant(), ig.getUnit(), self.aap.getId(), "Misc"))
-                    squirrel.commit()
-                self.ids.ingName.text = ""
-                self.ids.ingAmt.text = ""
-                self.ids.ingUnit.text = ""
-
-            else:
-                toast("An ingredient with that name already exists.")
-        else:
-            toast('One or more fields are invalid.')
-
-        self.ids.ingName.text = ""
-        self.ids.ingAmt.text = ""
-        self.ids.ingUnit.text = ""
 
 
 # Label that instructs user to use the "+" button
-class NothingThereLabel(MDLabel):
-    def __draw_shadow__(self, origin, end, context=None):
-        pass
-
-
-# Not actually sure what this is, but whatever
-class InfoLabel(MDLabel):
-    def __draw_shadow__(self, origin, end, context=None):
-        pass
 
 
 # The class that represents the whole app
@@ -832,6 +288,9 @@ class Main(MDApp):
     def set_menu_sort(self):
         self.menu_sort.open()
 
+    def set_menu_list(self):
+        pass
+
     # sets item for dropdown menu
     def set_item(self, arg):
         self.dialog.content_cls.ids.ddItem.set_item(arg)
@@ -849,6 +308,15 @@ class Main(MDApp):
             toast("Invalid input. Please try again.")
         self.menu_sort.dismiss()
 
+    def set_item_list(self, arg):
+        # TODO: this function
+        self.sm.get_screen("List View").ids.sortItemList.set_item(arg)
+        if arg == "Name":
+            print("Name")
+        elif arg == "# Items":
+            print("Items")
+        pass
+
     def switchToMain(self):
         self.app.deselectAll()
         self.sm.get_screen('Main Screen').refresh_homepage()
@@ -858,9 +326,11 @@ class Main(MDApp):
     # Ok this one's actually important so I'll comment it
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.menu_list = None
         self.mItems_sort = None
         self.mItems = None
         self.mItems_t = None
+        self.mItems_list = None
         self.menu_t = None
         self.numToGrab = 1
         self.app = Apple.Application()
@@ -1022,17 +492,18 @@ class Main(MDApp):
         self.theme_cls.primary_palette = "Green"
         self.sm = ScreenManager()
 
-        self.sm.add_widget(MainScreen(self.app, name="Main Screen"))
-        self.sm.add_widget(LoginScreen(self.app, name="Login Screen"))
-        self.sm.add_widget(LoadingScreen(name="Loading Screen"))
+        self.sm.add_widget(MainScreen(self.app, app, c, squirrel, name="Main Screen"))
+        self.sm.add_widget(LoginScreen(self.app, app, name="Login Screen"))
+        self.sm.add_widget(LoadingScreen(app, name="Loading Screen"))
         self.sm.add_widget(RecipeViewScreen(name="Recipe List"))
+        self.sm.add_widget(ListViewScreen(name="List View"))
 
         self.dialog = EditIngredientDialog(type="custom",
                                            title="Edit Ingredient",
                                            content_cls=EditIngredientContent(self.app.getFridge(),
                                                                              self.sm.get_screen("Main Screen"),
                                                                              Ing.Ingredient(".", Decimal(0), "."),
-                                                                             "fridge"))
+                                                                             "fridge", c, squirrel))
         self.mItems = [{
             'viewclass': 'OneLineListItem',
             'text': "Add",
@@ -1074,29 +545,43 @@ class Main(MDApp):
                 'on_release': lambda x='# Missing Ingredients': self.set_item_sort(x)
             }]
 
+        self.mItems_list = [{
+            'viewclass': 'OneLineListItem',
+            'text': 'Name',
+            'on_release': lambda x='Name': self.set_item_list(x)
+        },
+            {
+                'viewclass': 'OneLineListItem',
+                'text': '# Items',
+                'on_release': lambda x='# Items': self.set_item_list(x)
+            }
+        ]
+
         self.menu_sort = MDDropdownMenu(caller=self.sm.get_screen("Recipe List").ids.sortItem, items=self.mItems_sort,
                                         width_mult=2)
 
+        self.menu_list = MDDropdownMenu(caller=self.sm.get_screen("List View").ids.sortItemList, width_mult=2)
+
         self.gr_dialog = GetRecipeDialog(type="custom",
                                          title="Get Recipes",
-                                         content_cls=GetRecipeContent(self.app, self.sm.get_screen("Main Screen")))
+                                         content_cls=GetRecipeContent(self.app, self.sm.get_screen("Main Screen"), app))
 
         self.nl_dialog = NameListDialog(type="custom",
                                         title="Name List",
-                                        content_cls=NameListContent(self.app))
+                                        content_cls=NameListContent(self.app, app, c, squirrel))
 
         self.add_dialog = AddIngredientDialog(self.app.getFridge(), type="custom",
                                               title="New Ingredient",
                                               content_cls=AddIngredientContent(self.app,
                                                                                self.sm.get_screen("Main Screen"),
-                                                                               "fridge"))
+                                                                               "fridge", c, squirrel, app))
 
         self.ed_dialog = EditIngredientDialog(type="custom",
                                               title="Edit Ingredient",
                                               content_cls=EditIngredientContent(self.app.getPantry(),
                                                                                 self.sm.get_screen("Main Screen"),
                                                                                 Ing.Ingredient(".", Decimal(0.0), "."),
-                                                                                "pantry"))
+                                                                                "pantry", c, squirrel))
 
         c.execute("""SELECT * FROM users WHERE logged = 1""")
         data = c.fetchall()
