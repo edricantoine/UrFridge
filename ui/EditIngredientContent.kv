@@ -1,0 +1,31 @@
+<EditIngredientContent@BoxLayout>:
+    orientation: 'vertical'
+    spacing: '12dp'
+    height: '150dp'
+    size_hint_y: None
+
+    MDDropDownItem:
+        id: ddItem
+        pos_hint: {'center_x': 0.5}
+
+        text: "Select..."
+        on_release: app.set_menu(), app.menu.open()
+
+    MDTextField:
+        id: newAmount
+        hint_text: "New ingredient amount"
+        input_filter: 'float'
+        max_text_length: 10
+        helper_text: "This field is required"
+        helper_text_mode: 'on_focus'
+        color_mode: 'custom'
+        line_color_focus: get_color_from_hex("#6b8a70")
+
+
+    MDFloatingActionButton:
+        id: editButton
+        pos_hint: {'center_x': 0.5}
+        icon: 'check'
+        md_bg_color: get_color_from_hex("#6b8a70")
+        on_press: self.parent.readInput(), app.dialog_close()
+

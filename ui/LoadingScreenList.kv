@@ -1,0 +1,23 @@
+<LoadingScreenList>:
+    BoxLayout:
+        id: loadingBox
+        orientation: 'vertical'
+        Image:
+            id: loadingIcon
+            source: 'ZZ5H.gif'
+            pos: self.pos
+            size_hint: None, None
+            size: root.size
+            allow_stretch: True
+            keep_ratio: True
+            anim_loop: 0
+
+        MDLabel:
+            text: 'Please wait, we are fetching your recipe(s)...'
+            halign: 'center'
+            font_size: '25sp'
+            font_name: 'DMSans'
+            theme_text_color: "Custom"
+            text_color: get_color_from_hex("#08421e")
+            size: self.texture_size
+            size_hint_y: None

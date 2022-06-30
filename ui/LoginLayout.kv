@@ -1,0 +1,32 @@
+<LoginLayout@GridLayout>:
+    cols: 1
+    spacing: 40
+    rows_minimum: {0: (self.height) * 0.25, 1: (self.height) * 0.3}
+    row_force_default: True
+    MDTextField:
+        pos_hint: {'center_x': 0.5}
+        mode: 'fill'
+        id: idName
+        font_name: "DMSans"
+        hint_text: "Enter a unique User ID!"
+        max_text_length: 20
+        color_mode: 'custom'
+        line_color_focus: get_color_from_hex("#6b8a70")
+
+    AnchorLayout:
+        MDFillRoundFlatButton:
+            pos_hint: {'center_x': 0.5}
+            text: "LOGIN / CREATE ACCOUNT"
+            font_name: "DMSans"
+            font_size: "15sp"
+            md_bg_color: get_color_from_hex("#6b8a70")
+            on_press: self.parent.parent.login(idName.text)
+
+    MDLabel:
+        halign: 'center'
+        font_name: "DMSans"
+        text: "YourFridge © Edric Antoine 2022"
+        theme_text_color: "Custom"
+        font_size: '10sp'
+        text_color: get_color_from_hex("#bec5d1")
+

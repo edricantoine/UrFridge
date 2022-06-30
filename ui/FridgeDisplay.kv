@@ -1,0 +1,41 @@
+<FridgeDisplay@MDCard>:
+    size_hint: None, None
+    size: "325dp", "50dp"
+    pos_hint: {"center_x": .5, "center_y": .5}
+
+    MDLabel:
+        id: fDisplayLabel
+        halign: "center"
+        text: "Ingredient"
+        font_size: fDisplayLabel.height / 2
+        font_name: "DMSans"
+        theme_text_color: "Custom"
+        text_color: get_color_from_hex("#08421e")
+        on_texture: self.parent.on_text()
+
+
+    MDLabel:
+        id: fAmtLabel
+        halign: "center"
+        text: "??? unit(s)"
+        font_name: "DMSans"
+        theme_text_color: "Custom"
+        text_color: get_color_from_hex("#08421e")
+
+    MDIconButton:
+        icon: 'pencil'
+        icon_size: '32sp'
+        halign: 'center'
+        on_press: self.parent.callEdit()
+
+    MDIconButton:
+        icon: 'trash-can'
+        icon_size: '32sp'
+        halign: 'center'
+
+        on_press: self.parent.deletus_ingredient(),
+
+    MDCheckbox:
+        id: fDisplaySelector
+        halign: "center"
+        on_active: self.parent.on_checkbox(*args)

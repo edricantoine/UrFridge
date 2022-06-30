@@ -1,0 +1,59 @@
+<RecipeViewScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        MDToolbar:
+            id: rviewToolbar
+            md_bg_color: get_color_from_hex("#d0f7d6")
+            left_action_items: [["arrow-left", lambda x: app.switchToMain()]]
+            Image:
+                source: app.resource_path("logo2.png")
+                pos_hint: {'center_x': 0.5, 'center_y': 0}
+                pos: (((self.parent.size[0])/2)-200,self.pos[1])
+                pos_hint_x: None
+                size_hint_x: None
+                size_hint_y: None
+                height: dp(200)
+                width: dp(200)
+                allow_stretch: True
+        MDBottomNavigation:
+            id: viewNav
+            panel_color: get_color_from_hex("#d0f7d6")
+            selected_color_background: get_color_from_hex("#6b8a70")
+            text_color_active: get_color_from_hex("#6b8a70")
+
+            MDBottomNavigationItem:
+                id: recNav
+                name: 'view'
+                text: 'View Recipes'
+                icon: 'menu'
+
+                GridLayout:
+                    id: viewBox
+                    cols: 1
+                    rows_minimum: {0: (self.parent.height - dp(30)) * 0.1, 1: (self.parent.height - dp(30)) * 0.9}
+                    row_force_default: True
+                    spacing: 40
+                    AnchorLayout:
+                        id: viewBb
+                        MDDropDownItem:
+                            id: sortItem
+                            pos_hint: {'center_x': 0.5}
+                            text: "Sort by..."
+                            on_release: app.set_menu_sort()
+                    BoxLayout:
+                        orientation: 'vertical'
+                        spacing: 60
+
+                        ScrollView:
+                            id: viewSc
+                            size: (self.parent.width, self.parent.height)
+                            do_scroll_x: False
+                            do_scroll_y: True
+                            bar_width: 20
+                            BoxLayout:
+                                id: viewScroll
+                                size_hint_y: None
+                                height: self.minimum_height
+                                orientation:'vertical'
+                                spacing: 40
+

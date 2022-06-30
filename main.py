@@ -1,7 +1,6 @@
 import sys
 
 from kivymd.app import MDApp
-from kivymd.uix.label import MDLabel
 from kivymd.toast import toast
 from kivy.config import Config
 from kivy.core.text import LabelBase
@@ -11,10 +10,10 @@ from kivymd.uix.menu import MDDropdownMenu
 from decimal import *
 from kivy.storage.jsonstore import JsonStore
 from kivy.core.window import Window
+from kivy.lang import Builder
 import sqlite3
 import backend.Ingredient as Ing
 import backend.Application as Apple
-import backend.Recipe as Rec
 import backend.IngList as Lis
 import http.client as httplib
 import os
@@ -30,6 +29,18 @@ from ui.LoginScreen import LoginScreen
 from ui.MainScreen import MainScreen
 from ui.NameListContent import NameListContent
 from ui.RecipeViewScreen import RecipeViewScreen
+
+Builder.load_file('./ui/NameListContent.kv')
+Builder.load_file('./ui/AddIngredientContent.kv')
+Builder.load_file('./ui/LoginScreen.kv')
+Builder.load_file('./ui/LoginLayout.kv')
+Builder.load_file('./ui/LoadingScreen.kv')
+Builder.load_file('./ui/LoadingScreenList.kv')
+Builder.load_file('./ui/RecipeViewScreen.kv')
+Builder.load_file('./ui/GetRecipeContent.kv')
+Builder.load_file('./ui/EditIngredientContent.kv')
+Builder.load_file('./ui/FridgeDisplay.kv')
+Builder.load_file('./ui/ListViewScreen.kv')
 
 app_path = os.path.dirname(os.path.abspath(__file__))
 squirrel = sqlite3.connect(os.path.join(app_path, 'userdata.db'), detect_types=sqlite3.PARSE_DECLTYPES)
