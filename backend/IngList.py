@@ -12,6 +12,7 @@ class IngList:
     # getters and setters, no testing needed
     def __init__(self):
         self.main_list = []
+        self.name = "List"
 
     def getList(self):
         return self.main_list

@@ -159,6 +159,7 @@ class Main(MDApp):
     menu = None
     menu_t = None
     menu_sort = None
+    menu_list = None
     j_store = None
     numToGrab = None
 
@@ -300,7 +301,11 @@ class Main(MDApp):
         self.menu_sort.open()
 
     def set_menu_list(self):
-        pass
+        self.menu_list.open()
+
+    def openListViewScreen(self):
+        self.sm.get_screen("List View").initializeFromListList(self.app.getLists())
+        self.sm.current = "List View"
 
     # sets item for dropdown menu
     def set_item(self, arg):
@@ -320,12 +325,12 @@ class Main(MDApp):
         self.menu_sort.dismiss()
 
     def set_item_list(self, arg):
-        # TODO: this function
         self.sm.get_screen("List View").ids.sortItemList.set_item(arg)
         if arg == "Name":
             print("Name")
         elif arg == "# Items":
             print("Items")
+        self.menu_list.dismiss()
         pass
 
     def switchToMain(self):
@@ -571,7 +576,8 @@ class Main(MDApp):
         self.menu_sort = MDDropdownMenu(caller=self.sm.get_screen("Recipe List").ids.sortItem, items=self.mItems_sort,
                                         width_mult=2)
 
-        self.menu_list = MDDropdownMenu(caller=self.sm.get_screen("List View").ids.sortItemList, width_mult=2)
+        self.menu_list = MDDropdownMenu(caller=self.sm.get_screen("List View").ids.sortItemList, items=self.mItems_list,
+                                        width_mult=2)
 
         self.gr_dialog = GetRecipeDialog(type="custom",
                                          title="Get Recipes",
