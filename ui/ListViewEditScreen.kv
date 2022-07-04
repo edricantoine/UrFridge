@@ -1,48 +1,53 @@
-<RecipeViewScreen>:
+<ListViewEditScreen>:
     BoxLayout:
         orientation: 'vertical'
         MDToolbar:
-            id: rviewToolbar
+            id: lveToolbar
             md_bg_color: get_color_from_hex("#d0f7d6")
-            left_action_items: [["arrow-left", lambda x: app.switchToMain()]]
-            
+            left_action_items: [["arrow-left", lambda x: app.openListViewScreen()]]
+            right_action_items: [["trash-can", lambda x: app.switchToListViewAndDelete(self.parent.parent.lis)],["pencil", lambda x: app.openListViewEditName(self.parent.parent.lis)]]
+
         MDBottomNavigation:
-            id: viewNav
+            id: lveNav
             panel_color: get_color_from_hex("#d0f7d6")
             selected_color_background: get_color_from_hex("#6b8a70")
             text_color_active: get_color_from_hex("#6b8a70")
 
             MDBottomNavigationItem:
-                id: recNav
+                id: lveNav
                 name: 'view'
-                text: 'View Recipes'
+                text: 'View List'
                 icon: 'menu'
 
                 GridLayout:
-                    id: viewBox
+                    id: lveBox
                     cols: 1
                     rows_minimum: {0: (self.parent.height - dp(30)) * 0.1, 1: (self.parent.height - dp(30)) * 0.9}
                     row_force_default: True
                     spacing: 40
                     AnchorLayout:
-                        id: viewBb
-                        MDDropDownItem:
-                            id: sortItem
-                            pos_hint: {'center_x': 0.5}
-                            text: "Sort by..."
-                            on_release: app.set_menu_sort()
+                        id: lveBb
+                        MDLabel:
+                            id: listNameLabel
+                            halign: 'center'
+                            font_name: 'DMSans'
+                            font_size: '15sp'
+                            theme_text_color: "Custom"
+                            text_color: get_color_from_hex("#08421e")
+                            text: 'Placeholder'
+
                     BoxLayout:
                         orientation: 'vertical'
                         spacing: 60
 
                         ScrollView:
-                            id: viewSc
+                            id: lveSc
                             size: (self.parent.width, self.parent.height)
                             do_scroll_x: False
                             do_scroll_y: True
                             bar_width: 20
                             BoxLayout:
-                                id: viewScroll
+                                id: lveScroll
                                 size_hint_y: None
                                 height: self.minimum_height
                                 orientation:'vertical'

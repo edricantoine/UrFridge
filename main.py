@@ -29,6 +29,9 @@ from ui.LoginScreen import LoginScreen
 from ui.MainScreen import MainScreen
 from ui.NameListContent import NameListContent
 from ui.RecipeViewScreen import RecipeViewScreen
+from ui.ListViewEditScreen import ListViewEditScreen
+from ui.ListEditDialog import ListEditDialog
+from ui.ListEditContent import ListEditContent
 
 Builder.load_file('./ui/NameListContent.kv')
 Builder.load_file('./ui/AddIngredientContent.kv')
@@ -41,6 +44,8 @@ Builder.load_file('./ui/GetRecipeContent.kv')
 Builder.load_file('./ui/EditIngredientContent.kv')
 Builder.load_file('./ui/FridgeDisplay.kv')
 Builder.load_file('./ui/ListViewScreen.kv')
+Builder.load_file('./ui/ListViewEditScreen.kv')
+Builder.load_file('./ui/ListEditContent.kv')
 
 app_path = os.path.dirname(os.path.abspath(__file__))
 squirrel = sqlite3.connect(os.path.join(app_path, 'userdata.db'), detect_types=sqlite3.PARSE_DECLTYPES)
@@ -155,6 +160,7 @@ class Main(MDApp):
     nl_dialog = None
     add_dialog = None
     ed_dialog = None
+    ls_dialog = None
     sm = None
     menu = None
     menu_t = None
@@ -327,17 +333,32 @@ class Main(MDApp):
     def set_item_list(self, arg):
         self.sm.get_screen("List View").ids.sortItemList.set_item(arg)
         if arg == "Name":
-            print("Name")
+            self.sm.get_screen("List View").sortByName()
         elif arg == "# Items":
-            print("Items")
+            self.sm.get_screen("List View").sortByNumIngredients()
         self.menu_list.dismiss()
-        pass
 
     def switchToMain(self):
         self.app.deselectAll()
         self.sm.get_screen('Main Screen').refresh_homepage()
         self.sm.current = 'Main Screen'
         self.sm.get_screen('Recipe List').ids.sortItem.set_item("Sort by...")
+
+    def switchToListViewAndDelete(self, lis: Lis.IngList):
+        self.app.getLists().remove(lis)
+        c.execute("""
+            DELETE FROM lists 
+            WHERE name = ?
+            AND owner = ?
+        """, (lis.getName(), self.app.getId()))
+        squirrel.commit()
+        self.sm.get_screen("List View").initializeFromListList(self.app.getLists())
+        self.sm.current = "List View"
+
+    def openListViewEditName(self, lis: Lis.IngList):
+        self.dialog = self.ls_dialog
+        self.dialog.content_cls.lis = lis
+        self.dialog.open()
 
     # Ok this one's actually important so I'll comment it
     def __init__(self, **kwargs):
@@ -512,7 +533,8 @@ class Main(MDApp):
         self.sm.add_widget(LoginScreen(self.app, app, name="Login Screen"))
         self.sm.add_widget(LoadingScreen(app, name="Loading Screen"))
         self.sm.add_widget(RecipeViewScreen(name="Recipe List"))
-        self.sm.add_widget(ListViewScreen(name="List View"))
+        self.sm.add_widget(ListViewScreen(app, name="List View"))
+        self.sm.add_widget(ListViewEditScreen(name="List View Edit"))
 
         self.dialog = EditIngredientDialog(type="custom",
                                            title="Edit Ingredient",
@@ -599,6 +621,9 @@ class Main(MDApp):
                                                                                 self.sm.get_screen("Main Screen"),
                                                                                 Ing.Ingredient(".", Decimal(0.0), "."),
                                                                                 "pantry", c, squirrel))
+        self.ls_dialog = ListEditDialog(type="custom",
+                                        title="Edit List Name",
+                                        content_cls=ListEditContent(Lis.IngList(), app, c, squirrel))
 
         c.execute("""SELECT * FROM users WHERE logged = 1""")
         data = c.fetchall()
