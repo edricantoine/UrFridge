@@ -42,7 +42,7 @@ actually readable and has proper formatting and whatnot. Be sure to **open a new
 feature you want to add, though! (Just so I, and other contributors, know what's going on.)**
 
 ### Credits:
-Created in 2022 by Edric Antoine. (That's me.)
+Created in 2022 by Edric Antoine. 
 
 Special thanks to [johnwmillr](https://github.com/johnwmillr) for the excellent Spoonacular API wrapper!
 
