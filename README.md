@@ -1,5 +1,7 @@
 # YourFridge
 
+## Please note: I am unable to update the APK currently due to lack of a working Linux machine. If you want to use the app on an Android device, please look into how to create an APK (Buildozer, etc.) However, I want to continue adding features and updating the app as best I can.
+
 ## An easy-to-use food tracking and recipe generating application, powered by the Spoonacular API
 
 This application allows the user to add and remove ingredients from four separate spaces (Fridge, Freezer, Pantry, and
@@ -15,7 +17,7 @@ user IDs of the application, ingredients, and which ingredients belong to which 
 
 ### TO INSTALL, BUILD, AND RUN
 
-The current latest version of the APK is included in this repository. Currently, only Android users are able to 
+The latest working version of the APK is included in this repository. Currently, only Android users are able to 
 install and run this application on a mobile device. If you, for whatever reason, wish to run this application from
 the command line, navigate to the urFridge directory (the one with main.py and main.kv) and run:
 
