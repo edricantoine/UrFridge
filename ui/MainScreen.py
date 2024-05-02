@@ -110,97 +110,97 @@ class MainScreen(Screen):
 class AddIngredientButtonFr(MDFloatingActionButton):
     fridge: Frg.Fridge
     ms: MainScreen
-    type: str
+    thing: str
 
     # calls appropriate refresh method of main screen
     def refresh(self):
-        if self.type == "fridge":
+        if self.thing == "fridge":
             self.ms.refreshFridge()
-        elif self.type == 'freezer':
+        elif self.thing == 'freezer':
             self.ms.refreshFreezer()
-        elif self.type == 'pantry':
+        elif self.thing == 'pantry':
             self.ms.refreshPantry()
-        elif self.type == 'misc':
+        elif self.thing == 'misc':
             self.ms.refreshMisc()
 
     # We commit a diminutive amount of tomfoolery
-    def __init__(self, f: Frg.Fridge, ms: MainScreen, type: str, **kwargs):
+    def __init__(self, f: Frg.Fridge, ms: MainScreen, thing: str, **kwargs):
         super().__init__(**kwargs)
         self.fridge = f
         self.ms = ms
-        self.type = type
+        self.thing = thing
 
 
 class AddIngredientButtonFz(MDFloatingActionButton):
     fridge: Frg.Fridge
     ms: MainScreen
-    type: str
+    thing: str
 
     # Self-explanatory
     def refresh(self):
-        if self.type == "fridge":
+        if self.thing == "fridge":
             self.ms.refreshFridge()
-        elif self.type == 'freezer':
+        elif self.thing == 'freezer':
             self.ms.refreshFreezer()
-        elif self.type == 'pantry':
+        elif self.thing == 'pantry':
             self.ms.refreshPantry()
-        elif self.type == 'misc':
+        elif self.thing == 'misc':
             self.ms.refreshMisc()
 
     # We participate in an atomic amount of trickery
-    def __init__(self, f: Frg.Fridge, ms: MainScreen, type: str, **kwargs):
+    def __init__(self, f: Frg.Fridge, ms: MainScreen, thing: str, **kwargs):
         super().__init__(**kwargs)
         self.fridge = f
         self.ms = ms
-        self.type = type
+        self.thing = thing
 
 
 class AddIngredientButtonMs(MDFloatingActionButton):
     fridge: Frg.Fridge
     ms: MainScreen
-    type: str
+    thing: str
 
     # Self-explanatory
     def refresh(self):
-        if self.type == "fridge":
+        if self.thing == "fridge":
             self.ms.refreshFridge()
-        elif self.type == 'freezer':
+        elif self.thing == 'freezer':
             self.ms.refreshFreezer()
-        elif self.type == 'pantry':
+        elif self.thing == 'pantry':
             self.ms.refreshPantry()
-        elif self.type == 'misc':
+        elif self.thing == 'misc':
             self.ms.refreshMisc()
 
     # We engage in a teensy amount of social experimentation
-    def __init__(self, f: Frg.Fridge, ms: MainScreen, type: str, **kwargs):
+    def __init__(self, f: Frg.Fridge, ms: MainScreen, thing: str, **kwargs):
         super().__init__(**kwargs)
         self.fridge = f
         self.ms = ms
-        self.type = type
+        self.thing = thing
 
 
 class AddIngredientButtonPn(MDFloatingActionButton):
     fridge: Frg.Fridge
     ms: MainScreen
-    type: str
+    thing: str
 
     # Self-explanatory
     def refresh(self):
-        if self.type == "fridge":
+        if self.thing == "fridge":
             self.ms.refreshFridge()
-        elif self.type == 'freezer':
+        elif self.thing == 'freezer':
             self.ms.refreshFreezer()
-        elif self.type == 'pantry':
+        elif self.thing == 'pantry':
             self.ms.refreshPantry()
-        elif self.type == 'misc':
+        elif self.thing == 'misc':
             self.ms.refreshMisc()
 
     # We partake in a tiny portion of suspicious activity
-    def __init__(self, f: Frg.Fridge, ms: MainScreen, type: str, **kwargs):
+    def __init__(self, f: Frg.Fridge, ms: MainScreen, thing: str, **kwargs):
         super().__init__(**kwargs)
         self.fridge = f
         self.ms = ms
-        self.type = type
+        self.thing = thing
 
 
 class FridgeDisplay(MDCard):
@@ -224,12 +224,13 @@ class FridgeDisplay(MDCard):
 
     # Handles dynamic resizing of text (copied from StackOverflow lmao)
     def on_text(self):
-        if self.ids.fDisplayLabel.texture_size[0] >= self.ids.fDisplayLabel.width or \
-                self.ids.fDisplayLabel.texture_size[1] >= self.ids.fDisplayLabel.height:
-            self.ids.fDisplayLabel.font_size -= 7
-        if self.ids.fAmtLabel.texture_size[0] >= self.ids.fAmtLabel.width or self.ids.fAmtLabel.texture_size[
-            1] >= self.ids.fAmtLabel.height:
-            self.ids.fAmtLabel.font_size -= 7
+        pass
+        # if self.ids.fDisplayLabel.texture_size[0] >= self.ids.fDisplayLabel.width or \
+        #         self.ids.fDisplayLabel.texture_size[1] >= self.ids.fDisplayLabel.height:
+        #     self.ids.fDisplayLabel.font_size -= 7
+        # if self.ids.fAmtLabel.texture_size[0] >= self.ids.fAmtLabel.width or self.ids.fAmtLabel.texture_size[
+        #     1] >= self.ids.fAmtLabel.height:
+        #     self.ids.fAmtLabel.font_size -= 7
 
     # handles checkbox changing state
     def on_checkbox(self, checkbox, value):

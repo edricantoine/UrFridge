@@ -225,7 +225,7 @@ class Main(MDApp):
         self.dialog = self.ed_dialog
         self.dialog.content_cls.ferg = self.app.getFridge()
         self.dialog.content_cls.ing = ingredient
-        self.dialog.content_cls.type = "fridge"
+        self.dialog.content_cls.thing = "fridge"
 
         self.set_menu()
         self.dialog.open()
@@ -235,7 +235,7 @@ class Main(MDApp):
         self.dialog = self.ed_dialog
         self.dialog.content_cls.ferg = self.app.getFreezer()
         self.dialog.content_cls.ing = ingredient
-        self.dialog.content_cls.type = "freezer"
+        self.dialog.content_cls.thing = "freezer"
         self.set_menu()
         self.dialog.open()
 
@@ -244,7 +244,7 @@ class Main(MDApp):
         self.dialog = self.ed_dialog
         self.dialog.content_cls.ferg = self.app.getPantry()
         self.dialog.content_cls.ing = ingredient
-        self.dialog.content_cls.type = "pantry"
+        self.dialog.content_cls.thing = "pantry"
         self.set_menu()
         self.dialog.open()
 
@@ -253,7 +253,7 @@ class Main(MDApp):
         self.dialog = self.ed_dialog
         self.dialog.content_cls.ferg = self.app.getMisc()
         self.dialog.content_cls.ing = ingredient
-        self.dialog.content_cls.type = "misc"
+        self.dialog.content_cls.thing = "misc"
         self.set_menu()
         self.dialog.open()
 
@@ -261,28 +261,28 @@ class Main(MDApp):
     def showAddDialogFrg(self):
         self.dialog = self.add_dialog
         self.dialog.ferg = self.app.getFridge()
-        self.dialog.content_cls.type = 'fridge'
+        self.dialog.content_cls.thing = 'fridge'
         self.dialog.open()
 
     # shows dialog for adding ingredient to freezer
     def showAddDialogFrz(self):
         self.dialog = self.add_dialog
         self.dialog.ferg = self.app.getFreezer()
-        self.dialog.content_cls.type = 'freezer'
+        self.dialog.content_cls.thing = 'freezer'
         self.dialog.open()
 
     # shows dialog for adding ingredient to pantry
     def showAddDialogPn(self):
         self.dialog = self.add_dialog
         self.dialog.ferg = self.app.getPantry()
-        self.dialog.content_cls.type = 'pantry'
+        self.dialog.content_cls.thing = 'pantry'
         self.dialog.open()
 
     # shows dialog for adding ingredient to misc.
     def showAddDialogMs(self):
         self.dialog = self.add_dialog
         self.dialog.ferg = self.app.getMisc()
-        self.dialog.content_cls.type = 'misc'
+        self.dialog.content_cls.thing = 'misc'
         self.dialog.open()
 
     def showGetRecipeDialog(self):
